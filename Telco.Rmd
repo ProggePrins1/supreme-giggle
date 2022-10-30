@@ -8,12 +8,20 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+# Introduction
+## Dataset Overview
+> hi
 
-# Loading and Cleaning Data
+## Business Question
+> hi again
+
+## Preliminary Cleaning Effort
+> hi again 2
+
+### Loading and Cleaning Data
 ```{r}
 telco <- read.csv("Telco-Customer-Churn.csv")
 telco$customerID <- NULL
-#bawer was here
 
 # Factorizing binary variables
 telco$Churn <- as.factor(telco$Churn)
@@ -44,17 +52,5 @@ telco$Churn <- ifelse(telco$Churn == "No", 0, 1)
 
 summary(telco)
 str(telco)
-```
-# Running Logistic Regression
-
-## Simple logistic regression with all variables
-```{r}
-logreg1 <- glm(Churn ~., data = telco)
-summary(logreg1)
-```
-
-## Train-test split
-```{r}
-telco_test <- telco
 ```
 
