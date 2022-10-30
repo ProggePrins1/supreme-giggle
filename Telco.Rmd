@@ -1,0 +1,59 @@
+---
+title: "Telco"
+author: "Anuar Baisynov"
+date: "2022-10-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading and Cleaning Data
+```{r}
+telco <- read.csv("Telco-Customer-Churn.csv")
+telco$customerID <- NULL
+
+# Factorizing binary variables
+telco$Churn <- as.factor(telco$Churn)
+telco$PaperlessBilling <- as.factor(telco$PaperlessBilling)
+telco$PhoneService <- as.factor(telco$PhoneService)
+telco$Dependents <- as.factor(telco$Dependents)
+telco$gender <- as.factor(telco$gender)
+telco$SeniorCitizen <- as.factor(telco$SeniorCitizen)
+telco$Partner <- as.factor(telco$Partner)
+
+# Factorizing non-binary categorical variables
+telco$PaymentMethod <- as.factor(telco$PaymentMethod)
+telco$Contract <- as.factor(telco$Contract)
+telco$InternetService <- as.factor(telco$InternetService)
+telco$OnlineSecurity <- as.factor(telco$OnlineSecurity)
+telco$OnlineBackup <- as.factor(telco$OnlineBackup)
+telco$DeviceProtection <- as.factor(telco$DeviceProtection)
+telco$TechSupport <- as.factor(telco$TechSupport)
+telco$StreamingTV <- as.factor(telco$StreamingTV)
+telco$StreamingMovies <- as.factor(telco$StreamingMovies)
+telco$MultipleLines <- as.factor(telco$MultipleLines)
+
+# Handling NA's
+telco$TotalCharges[is.na(telco$TotalCharges)]<-median(telco$TotalCharges, na.rm=TRUE)
+
+# Updating Y values
+telco$Churn <- ifelse(telco$Churn == "No", 0, 1)
+
+summary(telco)
+str(telco)
+```
+# Running Logistic Regression
+
+## Simple logistic regression with all variables
+```{r}
+logreg1 <- glm(Churn ~., data = telco)
+summary(logreg1)
+```
+
+## Train-test split
+```{r}
+telco_test <- telco
+```
+
