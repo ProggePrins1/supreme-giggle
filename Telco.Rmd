@@ -2,7 +2,14 @@
 title: "Telco"
 author: "Anuar Baisynov, Martin Bech, Bawer Betasi, Thomas Matzen, Marius McIntosh"
 date: "2022-10-30"
-output: html_document
+output:
+  html_document:
+    toc: yes
+    theme: spacelab
+    highlight: tango
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -18,73 +25,131 @@ telco <- read.csv("Telco-Customer-Churn.csv")
 
 ## Dataset Overview
 
-> This dataset revolves itself around the customer churn in a dataset. Inferably, the goal is thus to use our progress in this course to predict the behavior of customers and thereby retain customers (and perhaps providing preliminary findings for customer retention programs). As given away by the title, the data regards "Telco", a hypothetical telecommunications company. Each row of the dataset is represented by a customer, and each column describes a characteristic of that customer and finally whether they have churned - or not. The dimensions of our dataset are: `r dim(telco)`. Some descriptive statistics follow. 
+> This dataset revolves itself around the **customer churn** in a dataset. Inferably, the goal is thus to *use our progress in this course to predict the behavior of customers and thereby retain customers*, and perhaps provide preliminary findings for customer retention programs. As given away by the title, the data regards *"Telco"*, a hypothetical telecommunications company. Each row of the dataset is represented by a *customer*, and each column describes a *characteristic* of that customer and finally whether they have churned - or not. The dimensions of our dataset are: **`r dim(telco)`**, with **`r nrow(telco)`** rows and thus **`r ncol(telco)`** columns. Some descriptive statistics follow. 
 
 
 
 ```{r}
+# Loading some data visualization packages...
 library(ggplot2)
 library(dplyr)
 
+```
+
+```{r}
+# Rather than describing each column, have a look at the first few columns to 
+# understand the structure of the dataset. 
 head(telco)
 
+# Of course, we could run an str() here, but we haven't cleaned the dataset yet. This might lead to some 
+# confusion, but just beware that he "chr" variables will be turned into factors later on. Similarly, 
+# summary() is mostly pointless due to the chr columns. 
+str(telco)
 
 # Let's look at the proportions of churn in our total set.
 ggplot(data = telco, aes(x = Churn, fill = Churn)) + 
   geom_bar() + 
+  theme_linedraw() + 
   theme(legend.position = "none") +
   coord_flip()
 
-# We can already, for fun, look at whether the churn differs per gender. 
-ggplot(data = telco, aes(x = Churn)) + 
-  geom_bar() + 
-  facet_wrap(~gender)
-# Well, without doing any other analysis, it appears to be the case that gender does not significantly affect churn.
-
-
-# Let's check the rows of yes and no for more specific data
+# We already see that the "yes" option occurs rather frequently,
+# at more or less 1750 instances, whereas no occurs some 5100 times. However, we don't need to 
+# guesstimate here! Let's check the rows of yes and no for more specific data instead
 nrow(filter(telco, Churn == "Yes"))
+
 nrow(filter(telco, Churn == "No"))
 
-# As a final descriptive section, let's have a look at churn per some variables that - intuitively - could impact customer churn in a telecom firm.
+# To be precise, we have 1869 customers churned out and 5174 retained. 
 
-# Let's start off with the DeviceProtection and how that impacts Churn. We can also look at the proportions of Gender here.
+# Next, we can already, as a de facto habit, look at whether the response variable churn differs per
+# gender. 
+ggplot(data = telco, aes(x = Churn, fill = Churn)) + 
+  geom_bar() + 
+  theme_linedraw() + 
+  facet_wrap(~gender)
+# Without doing any other analysis, it appears to be the case that gender 
+# does not significantly affect churn. The two charts are near identical both in proportion and 
+# in size, indicating that there might be a near 50-50 split of gender across the churn count.
+```
+
+For the next descriptive section, let's have a look at churn per some variables that - intuitively - could impact customer churn in a telecom firm.
+
+```{r}
+# Let's start off with the DeviceProtection and how that impacts Churn. 
+# We can also look at the proportions of Gender here.
 ggplot(data = telco, aes(x = Churn, fill = gender)) + 
   geom_bar() + 
+  theme_linedraw() + 
   facet_wrap(~DeviceProtection)
-# Interesting finding here: the male-female split appears to be almost exactly 50% in every kind of DeviceProtection, but for the "No" option in DeviceProtection the churn is relatively high compared to the other values in this category.
+# Interesting finding here: for the "No" option in DeviceProtection, the churn is relatively high compared to the other values in this category. Again, the male-female split appears to be almost 
+# exactly 50% in every kind of DeviceProtection.
 
-# How does the tenure affect churn?
+# Next, how does the tenure affect churn? Perhaps customers who have stuck around for a while will continue to stick around and thus need less discounts, etc.?
 ggplot(telco, aes(Churn, tenure, fill = Churn)) + 
-  geom_boxplot(alpha = 0.3) +
+  geom_boxplot(alpha = 0.8) +
+  theme_linedraw() + 
   theme(legend.position = "none")
-# Interesting! The tenure appears to be higher for those who don't churn, than those who will. We'll later explore whether this effect is significant. Perhaps loyalty up to the present day is an indicator of future loyalty?
 
-# Next, let's look at Churn by the Contract type. Perhaps a flexible month-to-month contract will result in more churn... 
+# Interesting! The tenure appears to be higher for those who don't churn than those who will. 
+# We'll later explore whether this effect is significant. Perhaps, loyalty up to the present 
+# day is an indicator of future loyalty, after all.
+
+
+# Up next, let's look at Churn by the Contract type. Perhaps a flexible month-to-month contract 
+# will result in more inclination to churn...
 ggplot(telco, aes(Churn, fill = Churn)) + 
   geom_bar() + 
+  theme_linedraw() + 
   theme(legend.position = "none") +
   facet_wrap(~Contract)
 
-# And what about Churn per Payment Method used? Is flexibility here also a cause of more churn? 
-ggplot(telco, aes(Churn)) + 
-  geom_bar() + 
-  facet_wrap(~PaymentMethod)
+# Our suspicion appears to be confirmed! The month-to-month contract has an extremely high churn rate
+# relative to the other contract types... we'll later see whether this is significant through our
+# regression model.
 
-# What about Paperless Billing? Would the lack of a physical paper cause more churn? 
+# And what about Churn per Payment Method used? Is flexibility here also a cause of more churn? 
 ggplot(telco, aes(Churn, fill = Churn)) + 
   geom_bar() + 
+  theme_linedraw() + 
+  theme(legend.position = "none") +
+  facet_wrap(~PaymentMethod)
+
+# By simply looking at this, our eyes are set on the electronic check method. Although it has a 
+# similar "no" count as the other payment systems, the "yes" count is much, much higher! This is
+# something we'd have to consider in our regression.
+
+# What about Paperless Billing? Would the lack of a physical paper (that presumably needs to be signed)
+# cause more churn? 
+ggplot(telco, aes(Churn, fill = Churn)) + 
+  geom_bar() + 
+  theme_linedraw() + 
   theme(legend.position = "none") +
   facet_wrap(~PaperlessBilling)
 
-# Finally, what about online security? Are people less inclined to cancel their plan if they are secured from malicious intents by the telecom's security system? 
+# Again, something interesting. We see that "yes" (so paperless) results in more than double in churn.
+# Whether the effect is significant is unknown, though - again, something to consider later on.
+
+# Finally, what about online security? Are people less inclined to cancel their plan if they are 
+# secured from malicious intents by the telecom's security system? 
 
 ggplot(telco, aes(x = Churn, fill = Churn)) + 
   geom_bar() + 
+  theme_linedraw() + 
   theme(legend.position = "none") +
   facet_wrap(~OnlineSecurity)
 
-# As may be noticeable, we have thus far merely considered the effect of a given predictor on the response variable, Churn. That said, we can - of course - also look at the interaction between different predictors through visualization. For now, we've only done this once (see below) 
+# The differences are night and day here: it's clear that when people do not have security in their
+# plan, their churn rate is much, much higher. Again, significance must be given a final validation
+# in the regression model.
+```
+
+As may be noticeable, we have thus far merely considered the effect of a given predictor on the response variable, Churn. That said, we can - of course - also look at the interaction between different predictors through visualization. For now, we've only done this once to save time and space (see below).
+
+```{r}
+# Let's check the interaction between Online Security and the Contract Type! Perhaps people with a
+# flexible contract also opt out of fancy features such as security? This could help us know what to
+# cater to with our offering when providing a month-to-month contract...
 
 ggplot(telco, aes(x = OnlineSecurity, fill = OnlineSecurity)) + 
   geom_bar() + 
@@ -93,15 +158,21 @@ ggplot(telco, aes(x = OnlineSecurity, fill = OnlineSecurity)) +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.ticks.x = element_blank())
- 
 
-  
+# Again, very interesting! This chart shows us a lot of things. First, it shows us that most people
+# have a month-to-month contract. Beyond that, however, it tells us that most people in a monthly
+# contract opt out of security! For the one-year categories, the choice for online security is 
+# almost split equally (omitting the "no internet service" category), whereas most people opt 
+# in for online security for the two-year contract.
 ```
 
 Of course, we can do **a lot more** with data visualization. For now, however, we'll keep it as is. A brief conclusion will follow before we move on to the next section.
 
 ### Conclusion
 
+Overall, we've seen a lot of interesting findings that indicates the dataset's and analytical opportunities to drive down the customer churn rate. Exposing these correlations by purely considering business intuition also indicates the importance of *not merely running the code, but also using business judgment to apply the analytical know-how*. 
+
+> We've seen that **gender** appears to be (somewhat) **indifferent** to the churn rate, whereas the **contract type, device protection, online security, and payment method** are variables to look out for. Additionally, we've realized that **interaction effects must be considered**, too, as a **month-to-month contract is almost always paired with no online security**. *Regardless, it is almost certain that we've missed numerous important effects, and that's why we'll run numerous types of ML algorithms and regression models.*
 
 ## Business Question
 > hi again
