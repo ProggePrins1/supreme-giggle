@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 telco <- read.csv("Telco-Customer-Churn.csv")
 telco$customerID <- NULL
+#bawer was here
 
 # Factorizing binary variables
 telco$Churn <- as.factor(telco$Churn)
