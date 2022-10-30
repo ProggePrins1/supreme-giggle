@@ -40,7 +40,7 @@ head(telco)
 
 # Of course, we could run an str() here, but we haven't cleaned the dataset yet. This might lead to some 
 # confusion, but just beware that the "chr" variables will be turned into factors later on. Similarly, 
-# summary() is mostly pointless due to the chr columns. 
+# summary() is mostly pointless due to the "chr" columns. 
 str(telco)
 
 # Let's look at the proportions of churn in our total set.
@@ -52,7 +52,7 @@ ggplot(data = telco, aes(x = Churn, fill = Churn)) +
 
 # We already see that the "yes" option occurs rather frequently,
 # at more or less 1750 instances, whereas no occurs some 5100 times. However, we don't need to 
-# guesstimate here! Let's check the rows of yes and no for more specific data instead
+# guesstimate here! Let's check the rows of yes and no for more specific data instead.
 nrow(filter(telco, Churn == "Yes"))
 
 nrow(filter(telco, Churn == "No"))
@@ -79,10 +79,12 @@ ggplot(data = telco, aes(x = Churn, fill = gender)) +
   geom_bar() + 
   theme_linedraw() + 
   facet_wrap(~DeviceProtection)
-# Interesting finding here: for the "No" option in DeviceProtection, the churn is relatively high compared to the other values in this category. Again, the male-female split appears to be almost 
+# Interesting finding here: for the "No" option in DeviceProtection, the churn is relatively high 
+# compared to the other values in this category. Again, the male-female split appears to be almost 
 # exactly 50% in every kind of DeviceProtection.
 
-# Next, how does the tenure affect churn? Perhaps customers who have stuck around for a while will continue to stick around and thus need less discounts, etc.?
+# Next, how does the tenure affect churn? Perhaps customers who have stuck around for a while will 
+# continue to stick around and thus need less discounts, etc.?
 ggplot(telco, aes(Churn, tenure, fill = Churn)) + 
   geom_boxplot(alpha = 0.8) +
   theme_linedraw() + 
