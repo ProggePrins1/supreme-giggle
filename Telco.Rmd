@@ -1,6 +1,6 @@
 ---
 title: "Telco"
-author: "Anuar Baisynov"
+author: "Anuar Baisynov, Martin Bech, Bawer Betasi, Thomas Matzen, Marius McIntosh"
 date: "2022-10-30"
 output: html_document
 ---
@@ -9,8 +9,99 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 # Introduction
+
+> Let's load the dataset first...
+
+```{r}
+telco <- read.csv("Telco-Customer-Churn.csv")
+```
+
 ## Dataset Overview
-> hi
+
+> This dataset revolves itself around the customer churn in a dataset. Inferably, the goal is thus to use our progress in this course to predict the behavior of customers and thereby retain customers (and perhaps providing preliminary findings for customer retention programs). As given away by the title, the data regards "Telco", a hypothetical telecommunications company. Each row of the dataset is represented by a customer, and each column describes a characteristic of that customer and finally whether they have churned - or not. The dimensions of our dataset are: `r dim(telco)`. Some descriptive statistics follow. 
+
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+head(telco)
+
+
+# Let's look at the proportions of churn in our total set.
+ggplot(data = telco, aes(x = Churn, fill = Churn)) + 
+  geom_bar() + 
+  theme(legend.position = "none") +
+  coord_flip()
+
+# We can already, for fun, look at whether the churn differs per gender. 
+ggplot(data = telco, aes(x = Churn)) + 
+  geom_bar() + 
+  facet_wrap(~gender)
+# Well, without doing any other analysis, it appears to be the case that gender does not significantly affect churn.
+
+
+# Let's check the rows of yes and no for more specific data
+nrow(filter(telco, Churn == "Yes"))
+nrow(filter(telco, Churn == "No"))
+
+# As a final descriptive section, let's have a look at churn per some variables that - intuitively - could impact customer churn in a telecom firm.
+
+# Let's start off with the DeviceProtection and how that impacts Churn. We can also look at the proportions of Gender here.
+ggplot(data = telco, aes(x = Churn, fill = gender)) + 
+  geom_bar() + 
+  facet_wrap(~DeviceProtection)
+# Interesting finding here: the male-female split appears to be almost exactly 50% in every kind of DeviceProtection, but for the "No" option in DeviceProtection the churn is relatively high compared to the other values in this category.
+
+# How does the tenure affect churn?
+ggplot(telco, aes(Churn, tenure, fill = Churn)) + 
+  geom_boxplot(alpha = 0.3) +
+  theme(legend.position = "none")
+# Interesting! The tenure appears to be higher for those who don't churn, than those who will. We'll later explore whether this effect is significant. Perhaps loyalty up to the present day is an indicator of future loyalty?
+
+# Next, let's look at Churn by the Contract type. Perhaps a flexible month-to-month contract will result in more churn... 
+ggplot(telco, aes(Churn, fill = Churn)) + 
+  geom_bar() + 
+  theme(legend.position = "none") +
+  facet_wrap(~Contract)
+
+# And what about Churn per Payment Method used? Is flexibility here also a cause of more churn? 
+ggplot(telco, aes(Churn)) + 
+  geom_bar() + 
+  facet_wrap(~PaymentMethod)
+
+# What about Paperless Billing? Would the lack of a physical paper cause more churn? 
+ggplot(telco, aes(Churn, fill = Churn)) + 
+  geom_bar() + 
+  theme(legend.position = "none") +
+  facet_wrap(~PaperlessBilling)
+
+# Finally, what about online security? Are people less inclined to cancel their plan if they are secured from malicious intents by the telecom's security system? 
+
+ggplot(telco, aes(x = Churn, fill = Churn)) + 
+  geom_bar() + 
+  theme(legend.position = "none") +
+  facet_wrap(~OnlineSecurity)
+
+# As may be noticeable, we have thus far merely considered the effect of a given predictor on the response variable, Churn. That said, we can - of course - also look at the interaction between different predictors through visualization. For now, we've only done this once (see below) 
+
+ggplot(telco, aes(x = OnlineSecurity, fill = OnlineSecurity)) + 
+  geom_bar() + 
+  facet_wrap(~Contract) + 
+  theme_linedraw() + 
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank())
+ 
+
+  
+```
+
+Of course, we can do **a lot more** with data visualization. For now, however, we'll keep it as is. A brief conclusion will follow before we move on to the next section.
+
+### Conclusion
+
 
 ## Business Question
 > hi again
@@ -20,7 +111,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Loading and Cleaning Data
 ```{r}
-telco <- read.csv("Telco-Customer-Churn.csv")
 telco$customerID <- NULL
 
 # Factorizing binary variables
