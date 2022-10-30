@@ -27,13 +27,10 @@ telco <- read.csv("Telco-Customer-Churn.csv")
 
 > This dataset revolves itself around the **customer churn** in a dataset. Inferably, the goal is thus to *use our progress in this course to predict the behavior of customers and thereby retain customers*, and perhaps provide preliminary findings for customer retention programs. As given away by the title, the data regards *"Telco"*, a hypothetical telecommunications company. Each row of the dataset is represented by a *customer*, and each column describes a *characteristic* of that customer and finally whether they have churned - or not. The dimensions of our dataset are: **`r dim(telco)`**, with **`r nrow(telco)`** rows and thus **`r ncol(telco)`** columns. Some descriptive statistics follow. 
 
-
-
 ```{r}
 # Loading some data visualization packages...
 library(ggplot2)
 library(dplyr)
-
 ```
 
 ```{r}
