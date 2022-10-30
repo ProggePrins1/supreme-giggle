@@ -39,7 +39,7 @@ library(dplyr)
 head(telco)
 
 # Of course, we could run an str() here, but we haven't cleaned the dataset yet. This might lead to some 
-# confusion, but just beware that he "chr" variables will be turned into factors later on. Similarly, 
+# confusion, but just beware that the "chr" variables will be turned into factors later on. Similarly, 
 # summary() is mostly pointless due to the chr columns. 
 str(telco)
 
