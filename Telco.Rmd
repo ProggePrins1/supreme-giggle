@@ -160,9 +160,9 @@ ggplot(telco, aes(x = OnlineSecurity, fill = OnlineSecurity)) +
 
 # Again, very interesting! This chart shows us a lot of things. First, it shows us that most people
 # have a month-to-month contract. Beyond that, however, it tells us that most people in a monthly
-# contract opt out of security! For the one-year categories, the choice for online security is 
+# contract opt out of security! For the one-year contract, the choice for online security is 
 # almost split equally (omitting the "no internet service" category), whereas most people opt 
-# in for online security for the two-year contract.
+# in for online security given a two-year contract.
 ```
 
 Of course, we can do **a lot more** with data visualization. For now, however, we'll keep it as is. A brief conclusion will follow before we move on to the next section.
