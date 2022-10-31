@@ -177,7 +177,9 @@ Overall, we've seen a lot of interesting findings that indicates the dataset's a
 > hi again
 
 ## Preliminary Cleaning Effort
-> hi again 2
+> In the upcoming section, the data is to be cleaned in order to prepare for data analysis, First, we start by deleting the "customerID" column as this column is irrelevant for our purpose (we're not trying to identify specific customers in our dataset). Following this, we factorize the columns with categorical data
+
+> After this we go on to deal with the "TotalCharges" column. This column has some NA values, which we choose to replace by the median value of the column. We use the median value as this is outlier resistent and won't be influenced by the high/low values in the dataset. Lastly, we also update the Y-value to a numerical basis (Answer "No" will be a 0) to allow for better data analysis.
 
 ### Loading and Cleaning Data
 ```{r}
@@ -213,4 +215,71 @@ telco$Churn <- ifelse(telco$Churn == "No", 0, 1)
 summary(telco)
 str(telco)
 ```
+## Creating Train and test sets
 
+
+
+```{r}
+
+## Loading the neccessary packages
+
+library(gmodels)
+library(caret)
+
+telco_sample <- sample(c(TRUE, FALSE), nrow(telco), replace=TRUE, prob=c(0.75,0.25))
+
+telco_train  <- telco[telco_sample, ]
+telco_test   <- telco[!telco_sample, ]
+
+
+
+# Creating a label for our test set
+telco_test_labels <- telco_test$Churn
+
+
+# Removing the response variable
+telco_test$Churn <- NULL
+
+predictionmodelt1 <- glm(Churn ~ ., data = telco_train, family = "binomial")
+summary(predictionmodelt1)
+
+## Let's remove the insignificant variables for now
+
+
+telco_train$gender <- NULL
+telco_train$SeniorCitizen <- NULL
+telco_train$Partner <- NULL
+telco_train$Dependents <- NULL
+telco_train$PhoneService <- NULL
+telco_train$MultipleLines <- NULL
+telco_train$OnlineSecurity <- NULL
+telco_train$OnlineBackup <- NULL
+telco_train$DeviceProtection <- NULL
+telco_train$TechSupport <- NULL
+telco_train$StreamingTV <- NULL
+telco_train$StreamingMovies <- NULL
+telco_train$MonthlyCharges <- NULL
+
+## Let's run the model again now that we have excluded all the nonsignificant variabless, with a threshhold of 5%
+
+predictionmodelt2 <- glm(Churn ~ ., data = telco_train, family = "binomial")
+
+#We can can now run our initial prediction based on this simple logistic regression
+
+
+initialprediction1 <- ifelse(predict(predictionmodelt2, newdata = telco_test, type = "response") < 0.5, 0, 1)
+
+
+
+
+CrossTable(telco_test_labels, initialprediction1, prop.chisq = FALSE)
+
+
+confusionMatrix(data = as.factor(initialprediction1), reference = as.factor(telco_test_labels), positive = "1")
+
+
+
+```
+
+> ## Basic Interpretation: 
+What immediately stands out in this model is the high number of false positives (120) where our model predicts that a customer would be retained, when it isn't the case in reality. Since this is an initial and relatively simple model, that is okay for now, as we will continue to work with this dataset to improve the prediction accuracy and bring down the false positives at the same time.
