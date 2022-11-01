@@ -221,7 +221,7 @@ telco$Churn <- ifelse(telco$Churn == "No", 0, 1)
 summary(telco)
 str(telco)
 ```
-## <a id="train_test"></a> Creating train and test sets
+## <a id="train_test"></a>Creating train and test sets
 
 
 ```{r}
