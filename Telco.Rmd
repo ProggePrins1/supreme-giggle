@@ -178,14 +178,14 @@ Overall, we've seen a lot of interesting findings that indicates the dataset's a
 
 > 1) *Are there customer groups with certain demographic characteristics or product preferences that tend to stop buying our services more often than others?* We will try to investigate this in two ways. First, we will try to explore differences in churn rates across various explanatory features in our dataset ([Creating train and test sets](#train_test) Exploratory Data Analysis section). Next, we will try to aggregate the data by running the k-means clustering algorithm to identify customer segments with the highest churn rate ([Creating train and test sets](#train_test) section).
 
-> 2) *Can we, at least with a 90% accuracy, predict whether a certain customer will churn based on their demographic characteristics and product preferences.* To this end, we plan to create machine learning algorithms that will determine whether a given customer will eventually stop buying our services or not. Applying our models to multiple test cases will help us derive an accuracy score.
+> 2) *Can we, at least with a 90% accuracy, predict whether a certain customer will churn based on their demographic characteristics and product preferences?* To this end, we plan to create machine learning algorithms that will determine whether a given customer will eventually stop buying our services or not. Applying our models to multiple test cases will help us derive an accuracy score.
 
-> Overall, our goal is two-fold: identify current customer segments that have an unusually high churn rates and try to develop targeted retention strategies for them.
+> Overall, our goal is two-fold: identify current customer segments that have an unusually high churn rate and try to develop targeted retention strategies for them.
 
 ## Preliminary Cleaning Effort
-> In the upcoming section, the data is to be cleaned in order to prepare for data analysis, First, we start by deleting the "customerID" column as this column is irrelevant for our purpose (we're not trying to identify specific customers in our dataset). Following this, we factorize the columns with categorical data
+> In the upcoming section, the data is to be cleaned in order to prepare for data analysis, First, we start by deleting the "customerID" column as this column is irrelevant for our purpose (we're not trying to identify specific customers in our dataset). Following this, we factorize the columns with categorical data.
 
-> After this we go on to deal with the "TotalCharges" column. This column has some NA values, which we choose to replace by the median value of the column. We use the median value as this is outlier resistent and won't be influenced by the high/low values in the dataset. Lastly, we also update the Y-value to a numerical basis (Answer "No" will be a 0) to allow for better data analysis.
+> After this, we go on to deal with the "TotalCharges" column. This column has some NA values, which we choose to replace by the median value of the column. We use the median value as this is outlier resistent and won't be influenced by the high/low values in the dataset. Lastly, we also update the Y-value to a numerical basis (Answer "No" will be a 0) to allow for better data analysis.
 
 ### Loading and Cleaning Data
 ```{r}
@@ -228,6 +228,7 @@ str(telco)
 
 ## Loading the neccessary packages
 
+set.seed(123)
 library(gmodels)
 library(caret)
 
@@ -235,8 +236,6 @@ telco_sample <- sample(c(TRUE, FALSE), nrow(telco), replace=TRUE, prob=c(0.75,0.
 
 telco_train  <- telco[telco_sample, ]
 telco_test   <- telco[!telco_sample, ]
-
-
 
 # Creating a label for our test set
 telco_test_labels <- telco_test$Churn
@@ -248,43 +247,23 @@ telco_test$Churn <- NULL
 predictionmodelt1 <- glm(Churn ~ ., data = telco_train, family = "binomial")
 summary(predictionmodelt1)
 
-## Let's remove the insignificant variables for now
+# Let's now run a model with only the significant variables, with a p-value threshold of 0.05.
 
+predictionmodelt2 <- glm(Churn ~ tenure + InternetService + Contract + PaperlessBilling + PaymentMethod + TotalCharges, data = telco_train, family = "binomial")
 
-telco_train$gender <- NULL
-telco_train$SeniorCitizen <- NULL
-telco_train$Partner <- NULL
-telco_train$Dependents <- NULL
-telco_train$PhoneService <- NULL
-telco_train$MultipleLines <- NULL
-telco_train$OnlineSecurity <- NULL
-telco_train$OnlineBackup <- NULL
-telco_train$DeviceProtection <- NULL
-telco_train$TechSupport <- NULL
-telco_train$StreamingTV <- NULL
-telco_train$StreamingMovies <- NULL
-telco_train$MonthlyCharges <- NULL
+summary(predictionmodelt2)
 
-## Let's run the model again now that we have excluded all the nonsignificant variabless, with a threshhold of 5%
-
-predictionmodelt2 <- glm(Churn ~ ., data = telco_train, family = "binomial")
-
-#We can can now run our initial prediction based on this simple logistic regression
-
+# We can can now run our initial prediction based on this simple logistic regression. 
+# We'll use a threshold of 50% here.
 
 initialprediction1 <- ifelse(predict(predictionmodelt2, newdata = telco_test, type = "response") < 0.5, 0, 1)
 
-
-
-
 CrossTable(telco_test_labels, initialprediction1, prop.chisq = FALSE)
-
 
 confusionMatrix(data = as.factor(initialprediction1), reference = as.factor(telco_test_labels), positive = "1")
 
-
-
 ```
 
-> ## Basic Interpretation: 
-What immediately stands out in this model is the high number of false positives (120) where our model predicts that a customer would be retained, when it isn't the case in reality. Since this is an initial and relatively simple model, that is okay for now, as we will continue to work with this dataset to improve the prediction accuracy and bring down the false positives at the same time.
+## Initial Interpretation
+
+> What immediately stands out in this model is the high number of **false negatives (195)** where our model predicts that a customer would be retained (churn = 0), when it isn't the case in reality (i.e., they churned; churn = 1). Since this is an initial and relatively simple model, that is okay for now, as we will continue to work with this dataset to improve the prediction accuracy and bring down the false negatives simultaneously. That's all for now, but all is to be continued...
