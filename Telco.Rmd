@@ -176,16 +176,16 @@ Overall, we've seen a lot of interesting findings that indicates the dataset's a
 ## Business Question
 > In this project, we are trying to answer **two overarching questions**:
 
-> 1) *Are there customer groups with certain demographic characteristics or product preferences that tend to stop buying our services more often than others?* We will try to investigate this in two ways. First, we will try to explore differences in churn rates across various explanatory features in our dataset ([Creating train and test sets](#train_test) Exploratory Data Analysis section). Next, we will try to aggregate the data by running the k-means clustering algorithm to identify customer segments with the highest churn rate ([Creating train and test sets](#train_test) section).
+> 1) *Are there customer groups with certain demographic characteristics or product preferences that tend to stop buying our services more often than others?* We will try to investigate this in two ways. First, we will try to explore differences in churn rates across various explanatory features in our dataset (Exploratory Data Analysis section). Next, we will try to aggregate the data by running the k-means clustering algorithm to identify customer segments with the highest churn rate (Clustering section).
 
 > 2) *Can we, at least with a 90% accuracy, predict whether a certain customer will churn based on their demographic characteristics and product preferences.* To this end, we plan to create machine learning algorithms that will determine whether a given customer will eventually stop buying our services or not. Applying our models to multiple test cases will help us derive an accuracy score.
 
-> Overall, our goal is two-fold: identify current customer segments that have an unusually high churn rates and try to develop targeted retention strategies for them.
+> Overall, our goal is to improve retention among both current and future customers. We can identify segments that have an unusually high churn rates and try to develop targeted retention strategies for them. 
 
 ## Preliminary Cleaning Effort
-> In the upcoming section, the data is to be cleaned in order to prepare for data analysis, First, we start by deleting the "customerID" column as this column is irrelevant for our purpose (we're not trying to identify specific customers in our dataset). Following this, we factorize the columns with categorical data
+> In the upcoming section, the data is to be cleaned in order to prepare for data analysis, First, we start by deleting the "customerID" column as this column is irrelevant for our purpose (we're not trying to identify specific customers in our dataset). Following this, we factorize the columns with categorical data.
 
-> After this we go on to deal with the "TotalCharges" column. This column has some NA values, which we choose to replace by the median value of the column. We use the median value as this is outlier resistent and won't be influenced by the high/low values in the dataset. Lastly, we also update the Y-value to a numerical basis (Answer "No" will be a 0) to allow for better data analysis.
+> After this, we go on to deal with the "TotalCharges" column. This column has some NA values, which we choose to replace by the median value of the column. We use the median value as this is outlier resistent and won't be influenced by the high/low values in the dataset. Lastly, we also update the Y-value to a numerical basis (Answer "No" will be a 0) to allow for better data analysis.
 
 ### Loading and Cleaning Data
 ```{r}
