@@ -57,6 +57,9 @@ nrow(filter(telco, Churn == "Yes"))
 
 nrow(filter(telco, Churn == "No"))
 
+#Proportion of churn
+nrow(filter(telco, Churn == "Yes"))/nrow(telco)
+
 # To be precise, we have 1869 customers churned out and 5174 retained. 
 
 # Next, we can already, as a de facto habit, look at whether the response variable churn differs per
