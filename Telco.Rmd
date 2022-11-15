@@ -231,20 +231,34 @@ str(telco)
 ## <a id="train_test"></a>Creating train and test sets
 
 ```{r}
-## Loading the neccessary packages
+## Loading the necessary packages
 
 set.seed(123)
 library(gmodels)
 library(caret)
 
-telco_sample <- sample(c(TRUE, FALSE), nrow(telco), replace=TRUE, prob=c(0.75,0.25))
+telco_modelm <- as.data.frame(model.matrix(~., -20, data = telco))
 
-telco_train  <- telco[telco_sample, ]
-telco_test   <- telco[!telco_sample, ]
+normalize <- function(x) {
+  return(((x-min(x))/max(x)-min(x)))
+}
+
+telco_normal <- as.data.frame(lapply(telco_modelm, normalize))
+
+#telco_sample <- sample(c(TRUE, FALSE), nrow(telco), replace=TRUE, prob=c(0.75,0.25))
+
+telco_sample <- telco[sample(nrow(telco)),]
+
+telco_train  <- telco[1:(0.75*nrow(telco)), ]
+telco_test   <- telco[(0.75*nrow(telco)):nrow(telco),]
+
+#telco_sample_normal <- sample(c(TRUE, FALSE), nrow(telco_normal), replace=TRUE, prob=c(0.75,0.25))
+
+telco_train_normal <- telco_normal[1:(0.75*nrow(telco)), ]
+telco_test_normal <- telco_normal[(0.75*nrow(telco)):nrow(telco),]
 
 # Creating a label for our test set
 telco_test_labels <- telco_test$Churn
-
 
 # Removing the response variable
 telco_test$Churn <- NULL
@@ -303,6 +317,16 @@ For this section, we will check if we can predict with 90% accuracy whether some
 ## Initial Models
 
 ### ANN
+
+```{r}
+library(neuralnet)
+
+telco_ann <- neuralnet(Churn ~., data = telco_train)
+
+plot(telco_ann)
+
+```
+
 
 ### C1
 #### Train & Test 1
