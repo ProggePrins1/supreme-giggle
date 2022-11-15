@@ -57,6 +57,9 @@ nrow(filter(telco, Churn == "Yes"))
 
 nrow(filter(telco, Churn == "No"))
 
+#Proportion of churn
+nrow(filter(telco, Churn == "Yes"))/nrow(telco)
+
 # To be precise, we have 1869 customers churned out and 5174 retained. 
 
 # Next, we can already, as a de facto habit, look at whether the response variable churn differs per
@@ -227,9 +230,7 @@ str(telco)
 ```
 ## <a id="train_test"></a>Creating train and test sets
 
-
 ```{r}
-
 ## Loading the neccessary packages
 
 set.seed(123)
@@ -265,9 +266,121 @@ initialprediction1 <- ifelse(predict(predictionmodelt2, newdata = telco_test, ty
 CrossTable(telco_test_labels, initialprediction1, prop.chisq = FALSE)
 
 confusionMatrix(data = as.factor(initialprediction1), reference = as.factor(telco_test_labels), positive = "1")
-
 ```
 
 ## Initial Interpretation
 
 > What immediately stands out in this model is the high number of **false negatives (195)** where our model predicts that a customer would be retained (churn = 0), when it isn't the case in reality (i.e., they churned; churn = 1). Since this is an initial and relatively simple model, that is okay for now, as we will continue to work with this dataset to improve the prediction accuracy and bring down the false negatives simultaneously. That's all for now, but all is to be continued...
+
+# Answering Business Question 1
+
+For this section, we will determine whether there are certain demographics or product preferences that result in people leaving our products less/more often. To answer this question, we will use k-means clustering and analyze the different characteristics of each segment.
+
+### Apply K-Means Clustering
+
+```{r}
+# Let's set a seed so that we have consistent results
+set.seed(357)
+
+# Create a function to set up k-means models with different k
+kmeans.wss.k <- function(tele_norm_cluster, k){
+  km = kmeans(tele_norm_cluster, k)
+  return (km$tot.withinss)
+}
+```
+
+### Characteristics of Each Cluster & Churn Rates per Cluster
+```{r}
+
+```
+
+> Text describing each cluster
+
+# Answering Business Question 2
+
+For this section, we will check if we can predict with 90% accuracy whether someone will churn out of our telco offering. To do so, we will first build an ANN, kNN, LR, and decision tree prediction model using cross-validation, and then use those outputs to create an ensemble model. 
+
+## Initial Models
+
+### ANN
+
+### C1
+#### Train & Test 1
+#### Train & Test 2
+#### Train & Test 3
+#### Train & Test 4
+
+## Improving our ANN
+#### More Layers
+
+### C2
+
+#### Train & Test 1
+#### Train & Test 2
+#### Train & Test 3
+#### Train & Test 4
+
+## Improving our ANN
+#### More Layers
+
+### C3
+
+#### Train & Test 1
+#### Train & Test 2
+#### Train & Test 3
+#### Train & Test 4
+
+## Improving our ANN
+#### More Layers
+
+### C4
+
+#### Train & Test 1
+#### Train & Test 2
+#### Train & Test 3
+#### Train & Test 4
+
+## Improving our ANN
+#### More Layers
+
+### C5
+
+#### Train & Test 1
+#### Train & Test 2
+#### Train & Test 3
+#### Train & Test 4
+
+## Improving our ANN
+#### More Layers
+
+```{r}
+
+```
+
+### kNN
+```{r}
+
+```
+
+### Logistic Regression
+```{r}
+
+```
+
+### Decision Tree
+```{r}
+
+```
+
+### Ensemble Modelling
+```{r}
+
+```
+
+In the first round of our prediction models
+```{r}
+
+```
+
+# Can we Estimate Customer Value More Accurately by using Monthly Bill Rates?
+## Too many levels? Collapse everything after the first three levels with the most observations
