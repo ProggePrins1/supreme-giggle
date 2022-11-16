@@ -302,7 +302,6 @@ library(neuralnet)
 telco_ann <- neuralnet(Churn ~., data = telco_train)
 
 plot(telco_ann)
-
 ```
 
 
@@ -371,7 +370,14 @@ plot(telco_ann)
 
 ### Decision Tree
 ```{r}
-telco_train_normal
+library(C50)
+
+# Build a decision tree model
+dt <- C5.0(as.factor(Churn) ~ ., data = telco_train_normal)
+dtpred <- predict(dt, telco_test_normal)
+
+# Build a confusion matrix
+confusionMatrix(data = dtpred, reference = as.factor(telco_test_labels), positive = "1")
 ```
 
 ### Ensemble Modelling
