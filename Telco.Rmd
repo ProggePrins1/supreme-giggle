@@ -29,8 +29,10 @@ telco <- read.csv("Telco-Customer-Churn.csv")
 
 ```{r}
 # Loading some data visualization packages...
-library(ggplot2)
-library(dplyr)
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(gmodels))
+suppressPackageStartupMessages(library(caret))
 ```
 
 ```{r}
@@ -231,12 +233,7 @@ str(telco)
 ## <a id="train_test"></a>Creating train and test sets
 
 ```{r}
-## Loading the necessary packages
-
-set.seed(123)
-library(gmodels)
-library(caret)
-
+set.seed(12345)
 telco_modelm <- as.data.frame(model.matrix(~., -1, data = telco))
 telco_modelm$`(Intercept)` <- NULL
 
@@ -292,6 +289,7 @@ For this section, we will determine whether there are certain demographics or pr
 # Answering Business Question 2
 
 For this section, we will check if we can predict with 90% accuracy whether someone will churn out of our telco offering. To do so, we will first build an ANN, kNN, LR, and decision tree prediction model using cross-validation, and then use those outputs to create an ensemble model. 
+
 ## Initial Models
 
 ### ANN
@@ -299,11 +297,41 @@ For this section, we will check if we can predict with 90% accuracy whether some
 ```{r}
 library(neuralnet)
 
-telco_ann <- neuralnet(Churn ~., data = telco_train)
+telco_ann <- neuralnet(Churn ~., data = telco_train_normal)
 
 plot(telco_ann)
+
+ann_results <- compute(telco_ann, telco_test_normal[1:30])
+
+predicted_churn <- ann_results$net.result
+summary(predicted_churn)
+
+# Binary prediction
+
+binary_ann <- as.numeric(ifelse(predicted_churn < 0.5, 0, 1))
+
+# CrossTable and Confusion Matrix
+
+CrossTable(telco_test_normal$Churn, binary_ann, prop.chisq = FALSE)
+
+confusionMatrix(data = as.factor(binary_ann), reference = as.factor(telco_test_normal$Churn), positive = "1")
 ```
 
+### kNN
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+## Improving our ANN
+#### More Layers
 
 ### C1
 #### Train & Test 1
@@ -311,8 +339,7 @@ plot(telco_ann)
 #### Train & Test 3
 #### Train & Test 4
 
-## Improving our ANN
-#### More Layers
+
 
 ### C2
 
@@ -358,10 +385,6 @@ plot(telco_ann)
 
 ```
 
-### kNN
-```{r}
-
-```
 
 ### Logistic Regression
 ```{r}
