@@ -245,6 +245,8 @@ normalize <- function(x) {
 
 telco_normal <- as.data.frame(lapply(telco_modelm, normalize))
 
+telco_normal$Churn <- as.factor(telco_normal$Churn)
+
 # Creating a label for our test set
 telco_labels <- telco_normal$Churn
 ```
@@ -610,17 +612,20 @@ dt_comb2_sens <- as.numeric(dt_comb2_cm$byClass['Sensitivity'])
 ```{r, cache = TRUE}
 set.seed(300)
 
+# Create a cost matrix
+error_cost <- matrix(c(0, 1, 3, 0), nrow = 2)
+
 # Use expand.grid() to create grid of tuning parameters
 grid <- expand.grid(.model = "tree",
                     .trials = c(1, 5, 10, 15, 20, 25, 30),
-                    .winnow = "FALSE")
+                    .winnow = "FALSE",
+                    cost <- error_cost)
 
 # Customize train() with the control list and grid of parameters 
 dt_comb <- train(Actual ~ ., data = combineddf, method = "C5.0Cost",
            metric = "Kappa",
            trControl = ctrl,
-           tuneGrid = grid,
-           )
+           tuneGrid = grid)
 
 # Apply the best candidate model to make predictions
 dt_comb_pred <- predict(dt_comb, combineddf[-6])
