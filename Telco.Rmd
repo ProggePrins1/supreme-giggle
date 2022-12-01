@@ -234,8 +234,7 @@ summary(telco)
 str(telco)
 ```
 
-
-## <a id="train_test"></a>Creating Train and Test Sets
+### Normalization
 
 ```{r}
 set.seed(12345)
@@ -248,269 +247,177 @@ normalize <- function(x) {
 
 telco_normal <- as.data.frame(lapply(telco_modelm, normalize))
 
-telco_sample <- telco[sample(nrow(telco)),]
-
-telco_train  <- telco[1:(0.75*nrow(telco)), ]
-telco_test   <- telco[(0.75*nrow(telco)+1):nrow(telco),]
-
-telco_train_normal <- telco_normal[1:(0.75*nrow(telco)), ]
-telco_test_normal <- telco_normal[(0.75*nrow(telco)+1):nrow(telco),]
-
 # Creating a label for our test set
-telco_test_labels <- telco_test$Churn
-
-# Removing the response variable
-telco_test$Churn <- NULL
+telco_labels <- telco_normal$Churn
 ```
 
-## First Logistic Regression for EDA (First Intermediate Deliverable)
 
-```{r}
-predictionmodelt1 <- glm(Churn ~ ., data = telco_train, family = "binomial")
-summary(predictionmodelt1)
-
-# Let's now run a model with only the significant variables, with a p-value threshold of 0.05.
-
-predictionmodelt2 <- glm(Churn ~ tenure + InternetService + Contract + PaperlessBilling + PaymentMethod + TotalCharges, data = telco_train, family = "binomial")
-
-summary(predictionmodelt2)
-
-# We can can now run our initial prediction based on this simple logistic regression. 
-# We'll use a threshold of 50% here.
-
-lm_pred <- predict(predictionmodelt2, newdata = telco_test, type = "response")
-binary_lm <- ifelse(lm_pred < 0.5, 0, 1)
-
-CrossTable(telco_test_labels, binary_lm, prop.chisq = FALSE)
-
-lm_cm <- confusionMatrix(data = as.factor(binary_lm), reference = as.factor(telco_test_labels), positive = "1")
-
-# Show the confusion matrix
-lm_cm
-
-# Get accuracy and kappa values
-lm_acc <- as.numeric(lm_cm$overall['Accuracy'])
-lm_kappa <- as.numeric(lm_cm$overall['Kappa'])
-lm_sens <- as.numeric(lm_cm$byClass['Sensitivity'])
-```
-<br>
-> What immediately stands out in this model is the high number of **false negatives (245)** where our model predicts that a customer would be retained (churn = 0), when it isn't the case in reality (i.e., they churned; churn = 1). Since this is an initial and relatively simple model, that is okay for now, as we will continue to work with this dataset to improve the prediction accuracy and bring down the false negatives simultaneously. This is the end of our code for the first intermediate submission.
-
-# Answering Business Question 1
-
-For this section, we will determine whether there are certain demographics or product preferences that result in people leaving our products less/more often. To answer this question, we will use k-means clustering and analyze the different characteristics of each segment.
-
-> The question is to be answered later in the semester. For the second intermediate deliverable, we are only building a stacked model based on the entire dataset without breaking it down into clusters.
-
-# Answering Business Question 2
+# Answering Business Question
 
 For this section, we will check if we can predict with 90% accuracy whether someone will churn out of our telco offering. To do so, we will first build an ANN, kNN, LR, SVM, and DT prediction models, and then use those outputs to create an ensemble model. 
 
 > The question is to be answered later in the semester. For the second intermediate deliverable, we are only building a stacked model based on the entire dataset without breaking it down into clusters.
 
 # First-Level Models
-## ANN
-### Simple ANN
-```{r, cache = TRUE}
-library(neuralnet)
-
-# Run ANN
-telco_ann <- neuralnet(Churn ~., data = telco_train_normal, hidden = 1)
-
-# Create a Plot
-plot(telco_ann)
-
-# Compute Predictions
-ann_results <- compute(telco_ann, telco_test_normal[-31])
-
-# Store net.result in variable and show overview
-predicted_churn <- ann_results$net.result
-summary(predicted_churn)
-
-# Run a binary prediction
-binary_ann <- as.numeric(ifelse(predicted_churn < 0.4, 0, 1))
-# The binary threshold of 0.4 maximizes the Kappa value
-
-# CrossTable and Confusion Matrix
-
-CrossTable(telco_test_normal$Churn, binary_ann, prop.chisq = FALSE)
-
-ann_cm <- confusionMatrix(data = as.factor(binary_ann), reference = as.factor(telco_test_normal$Churn), positive = "1")
-
-ann_cm
-
-# Get accuracy and kappa values
-ann_acc <- as.numeric(ann_cm$overall['Accuracy'])
-ann_kappa <- as.numeric(ann_cm$overall['Kappa'])
-ann_sens <- as.numeric(ann_cm$byClass['Sensitivity'])
-```
-<br>
-> First ANN gave us an accuracy score of``r ann_acc` and a Kappa value of `r ann_kappa`. This represents a slight improvement from what we saw with our simple logistic regression. We will now try to increase the number of hidden layers in the model.
-
-### Improved ANN (5 Hidden Layers)
-```{r, cache = TRUE}
-# Run ANN
-telco_ann2 <- neuralnet(Churn ~., data = telco_train_normal, hidden = 5, stepmax = 1e7)
-
-# Create a Plot
-plot(telco_ann2)
-
-# Compute Predictions
-ann_results2 <- compute(telco_ann2, telco_test_normal[-31])
-
-# Store net.result in variable and show overview
-ann_predicted_churn2 <- ann_results2$net.result
-summary(ann_predicted_churn2)
-
-# Run a binary prediction
-binary_ann2 <- as.numeric(ifelse(ann_predicted_churn2 < 0.5, 0, 1))
-
-# CrossTable and Confusion Matrix
-
-CrossTable(telco_test_normal$Churn, binary_ann2, prop.chisq = FALSE)
-
-ann2_cm <- confusionMatrix(data = as.factor(binary_ann2), reference = as.factor(telco_test_normal$Churn), positive = "1")
-
-ann2_cm
-
-# Get accuracy and kappa values
-ann2_acc <- as.numeric(ann2_cm$overall['Accuracy'])
-ann2_kappa <- as.numeric(ann2_cm$overall['Kappa'])
-ann2_sens <- as.numeric(ann2_cm$byClass['Sensitivity'])
-```
-<br>
-> A model with 5 hidden layers achieves an accuracy of `r ann2_acc` with a binary threshold of 0.5. The Kappa value achieved with that threshold was `r ann2_kappa`, so that is even lower than what we saw with a model that had only one hidden layer. 
-
-### Improved ANN (3 Hidden Layers)
-```{r, cache = TRUE}
-# Run ANN
-telco_ann3 <- neuralnet(Churn ~., data = telco_train_normal, hidden = 3, stepmax = 1e7)
-
-# Create a Plot
-plot(telco_ann3)
-
-# Compute Predictions
-ann_results3 <- compute(telco_ann3, telco_test_normal[-31])
-
-# Store net.result in variable and show overview
-ann_predicted_churn3 <- ann_results3$net.result
-ann_predicted_churn3 <- as.numeric(ann_predicted_churn3)
-
-# Run a binary prediction
-binary_ann3 <- as.numeric(ifelse(ann_predicted_churn3 < 0.4, 0, 1))
-
-# CrossTable and Confusion Matrix
-CrossTable(telco_test_normal$Churn, binary_ann3, prop.chisq = FALSE)
-
-ann3_cm <- confusionMatrix(data = as.factor(binary_ann3), reference = as.factor(telco_test_normal$Churn), positive = "1")
-
-ann3_cm
-
-# Get accuracy and kappa values
-ann3_acc <- as.numeric(ann3_cm$overall['Accuracy'])
-ann3_kappa <- as.numeric(ann3_cm$overall['Kappa'])
-ann3_sens <- as.numeric(ann3_cm$byClass['Sensitivity'])
-```
-<br>
-> With three hidden layers, we are seeing much better results. With a binary threshold of 0.4, the accuracy is `r ann3_acc` and the Kappa value is `r ann3_kappa`. We will be using this model moving forward.
-
-## kNN
-### Simple kNN model
-```{r, cache = TRUE}
+## Logistic Regression
+### Simple LR
+```{r}
+set.seed(300)
 library(caret)
 
-# Create a simple tuned model
-set.seed(300)
-telco_train_normal$Churn <- as.factor(telco_train_normal$Churn)
-knn <- train(Churn ~ ., data = telco_train_normal, method = "knn")
+# Customize the tuning process using trainControl() to alter resampling strategy
+ctrl <- trainControl(method = "cv", number = 4,
+                     selectionFunction = "oneSE")
 
-# Apply the best kNN candidate model to make predictions
-knn_pred <- predict(knn, telco_test_normal[-31])
+# Build LR model with the set resampling strategy and grid parameters
+lr1 <- train(Churn ~ ., data = telco_normal, method = "glm", metric = "Kappa", trControl = ctrl)
 
-# Create a confusion matrix
-knn_cm <- confusionMatrix(data = knn_pred, reference = as.factor(telco_test_normal$Churn), positive = "1")
+# Show summary of the model
+summary(lr1)
 
-knn_cm
+# Predict the test set
+lr1pred <- predict(lr1, telco_normal[-31])
+
+lm1_cm <- confusionMatrix(data = as.factor(lr1pred), reference = as.factor(telco_labels), positive = "1")
+
+# Show the confusion matrix
+lm1_cm
 
 # Get accuracy and kappa values
-knn_acc <- as.numeric(knn_cm$overall['Accuracy'])
-knn_kappa <- as.numeric(knn_cm$overall['Kappa'])
-knn_sens <- as.numeric(knn_cm$byClass['Sensitivity'])
+lm1_acc <- as.numeric(lm1_cm$overall['Accuracy'])
+lm1_kappa <- as.numeric(lm1_cm$overall['Kappa'])
+lm1_sens <- as.numeric(lm1_cm$byClass['Sensitivity'])
 ```
 <br>
-> The simple model achieved an accuracy of `r knn_acc` and a Kappa value of `r knn_kappa`. We will try to improve these results by tuning hyperparameters, specifically the value of k.
+> What immediately stands out in this model is the high number of **false negatives** where our model predicts that a customer would be retained (churn = 0), when it isn't the case in reality (i.e., they churned; churn = 1). Since this is an initial and relatively simple model, that is okay for now, as we will continue to work with this dataset to improve the prediction accuracy and bring down the false negatives simultaneously. This is the end of our code for the first intermediate submission.
 
-### Improved kNN model
+### Improved LR
+```{r}
+set.seed(300)
+
+# Build LR model with the set resampling strategy and grid parameters
+lr2 <- train(Churn ~ SeniorCitizen1 + tenure + MultipleLinesYes + InternetServiceFiber.optic + InternetServiceNo + ContractOne.year + ContractTwo.year + PaperlessBillingYes + PaymentMethodElectronic.check + TotalCharges, data = telco_normal, method = "glm", metric = "Kappa", trControl = ctrl)
+
+# Show summary of the model
+summary(lr2)
+
+# Predict the test set
+lr2pred <- predict(lr2, telco_normal[-31])
+
+lm2_cm <- confusionMatrix(data = as.factor(lr2pred), reference = as.factor(telco_labels), positive = "1")
+
+# Show the confusion matrix
+lm2_cm
+
+# Get accuracy and kappa values
+lm2_acc <- as.numeric(lm2_cm$overall['Accuracy'])
+lm2_kappa <- as.numeric(lm2_cm$overall['Kappa'])
+lm2_sens <- as.numeric(lm2_cm$byClass['Sensitivity'])
+```
+
+## ANN
 ```{r, cache = TRUE}
 set.seed(300)
 
-# Customize the tuning process using trainControl() to alter resampling strategy
-ctrl <- trainControl(method = "cv", number = 10,
-                     selectionFunction = "oneSE")
+# Set up a grid to test different hidden layers
+grid <- expand.grid(size = c(1, 3), decay = c(0, 0.05))
+
+# Build ANN model with the set resampling strategy and grid parameters
+ann1 <- caret::train(Churn ~ ., data = telco_normal, method = "nnet", metric = "Kappa", trControl = ctrl, tuneGrid = grid)
+
+# Show summary of the model
+summary(ann1)
+
+# Predict the test set
+ann1pred <- predict(ann1, telco_normal[-31])
+
+ann1_cm <- confusionMatrix(data = as.factor(ann1pred), reference = as.factor(telco_labels), positive = "1")
+
+# Show the confusion matrix
+ann1_cm
+
+# Get accuracy and kappa values
+ann1_acc <- as.numeric(ann1_cm$overall['Accuracy'])
+ann1_kappa <- as.numeric(ann1_cm$overall['Kappa'])
+ann1_sens <- as.numeric(ann1_cm$byClass['Sensitivity'])
+```
+<br>
+> First ANN gave us an accuracy score of``r ann1_acc` and a Kappa value of `r ann1_kappa`.
+
+## kNN
+```{r, cache = TRUE}
+set.seed(300)
 
 # Use expand.grid() to create grid of tuning parameters
 grid <- expand.grid(k = seq(5, 100, 5))
 
 # Build kNN models with the set resampling strategy and grid parameters
-knn2 <- train(Churn ~ ., data = telco_train_normal, method = "knn",
+knn1 <- train(Churn ~ ., data = telco_normal, method = "knn",
            metric = "Kappa",
            trControl = ctrl,
            tuneGrid = grid)
 
 # Predict the test set
-knn_pred2 <- predict(knn2, telco_test_normal[-31])
-
-# Create crosstable, change headers of the table
-CrossTable(as.factor(telco_test_normal$Churn), knn_pred2, prop.chisq = F, dnn = c("Real Churn", "Predicted Churn"))
+knn1pred <- predict(knn1, telco_normal[-31])
 
 # Create a confusion matrix
-knn2_cm <- confusionMatrix(data = knn_pred2, reference = as.factor(telco_test_normal$Churn), positive = "1")
+knn1_cm <- confusionMatrix(data = as.factor(knn1pred), reference = as.factor(telco_labels), positive = "1")
 
-knn2_cm
+# Show the confusion matrix
+knn1_cm
 
 # Get accuracy and kappa values
-knn2_acc <- as.numeric(knn2_cm$overall['Accuracy'])
-knn2_kappa <- as.numeric(knn2_cm$overall['Kappa'])
-knn2_sens <- as.numeric(knn2_cm$byClass['Sensitivity'])
+knn1_acc <- as.numeric(knn1_cm$overall['Accuracy'])
+knn1_kappa <- as.numeric(knn1_cm$overall['Kappa'])
+knn1_sens <- as.numeric(knn1_cm$byClass['Sensitivity'])
 ```
 <br>
-> The improved kNN achieved a higher accuracy (`r knn2_acc`) and a higher Kappa value (`r knn2_kappa`).
+> The kNN model achieved a higher accuracy (`r knn1_acc`) and a higher Kappa value (`r knn1_kappa`).
 
 ## Decision Tree
-### Simple Decision Tree
-```{r, cache = TRUE}
-# Build a decision tree model
-dt <- C5.0(as.factor(Churn) ~ ., data = telco_train_normal)
-dtpred <- predict(dt, telco_test_normal[-31])
-
-# Build a crosstable
-CrossTable(x = telco_test_normal$Churn, y = dtpred, prop.chisq = F, dnn = c("Actual Churn", "Predicted Churn"))
-
-# Build a confusion matrix
-dt_cm <- confusionMatrix(data = dtpred, reference = as.factor(telco_test_normal$Churn), positive = "1")
-
-dt_cm
-
-# Get accuracy and kappa values
-dt_acc <- as.numeric(dt_cm$overall['Accuracy'])
-dt_kappa <- as.numeric(dt_cm$overall['Kappa'])
-dt_sens <- as.numeric(dt_cm$byClass['Sensitivity'])
-```
-<br>
-> A model based on the C5.0 package saw an accuracy of `r dt_acc` and a Kappa value of `r dt_kappa`. We will now try to build decision tree using the Caret package.
-
-### Decision Tree with Caret
+### Simple DT
 ```{r, cache = TRUE}
 set.seed(300)
 
 ## Create a simple tuned model with automated parameter tuning of C5.0 decision tree 
-dt2 <- train(Churn ~ ., data = telco_train_normal, method = "C5.0")
+dt1 <- train(Churn ~ ., data = telco_normal, method = "C5.0")
 
 # Apply the best candidate model to make predictions
-dt_pred2 <- predict(dt2, telco_test_normal[-31])
+dt1_pred <- predict(dt1, telco_normal[-31])
 
 # Create a confusion matrix
-dt2_cm <- confusionMatrix(data = dt_pred2, reference = as.factor(telco_test_normal$Churn), positive = "1")
+dt1_cm <- confusionMatrix(data = as.factor(dt1_pred), reference = as.factor(telco_labels), positive = "1")
+
+# Show the confusion matrix
+dt1_cm
+
+# Get accuracy and kappa values
+dt1_acc <- as.numeric(dt1_cm$overall['Accuracy'])
+dt1_kappa <- as.numeric(dt1_cm$overall['Kappa'])
+dt1_sens <- as.numeric(dt1_cm$byClass['Sensitivity'])
+```
+<br>
+  > A model based on the Caret package saw a slightly higher accuracy (`r dt1_acc`)  but a lower Kappa value (`r dt1_kappa`). We will now try to tune the hyperparameters of the model.
+
+```{r, cache = TRUE}
+set.seed(300)
+
+# Use expand.grid() to create grid of tuning parameters
+grid <- expand.grid(.model = "tree",
+                    .trials = c(1, 5, 10, 15, 20, 25, 30),
+                    .winnow = "FALSE")
+
+# Customize train() with the control list and grid of parameters 
+dt2 <- train(Churn ~ ., data = telco_normal, method = "C5.0",
+           metric = "Kappa",
+           trControl = ctrl,
+           tuneGrid = grid)
+
+# Apply the best candidate model to make predictions
+dt2_pred <- predict(dt2, telco_normal[-31])
+
+# Create a confusion matrix
+dt2_cm <- confusionMatrix(data = as.factor(dt2_pred), reference = as.factor(telco_labels), positive = "1")
 
 dt2_cm
 
@@ -520,72 +427,109 @@ dt2_kappa <- as.numeric(dt2_cm$overall['Kappa'])
 dt2_sens <- as.numeric(dt2_cm$byClass['Sensitivity'])
 ```
 <br>
-  > A model based on the Caret package saw a slightly higher accuracy (`r dt2_acc`)  but a lower Kappa value (`r dt2_kappa`). We will now try to tune the hyperparameters of the model.
+> The improved model model based on the Caret package saw an accuracy of `r dt2_acc` and a Kappa value of `r dt2_kappa`.
 
+## Support Vector Machine (SVM)
+### SVM Linear
 ```{r, cache = TRUE}
 set.seed(300)
 
-## Customize the tuning process using trainControl() to alter resampling strategy
-ctrl <- trainControl(method = "cv", number = 10,
-                     selectionFunction = "oneSE")
-
-# Use expand.grid() to create grid of tuning parameters
-grid <- expand.grid(.model = "tree",
-                    .trials = c(1, 5, 10, 15, 20, 25, 30),
-                    .winnow = "FALSE")
-
 # Customize train() with the control list and grid of parameters 
-dt3 <- train(Churn ~ ., data = telco_train_normal, method = "C5.0",
+svm1 <- train(Churn ~ ., data = telco_normal, method = "svmLinear",
            metric = "Kappa",
-           trControl = ctrl,
-           tuneGrid = grid)
+           trControl = ctrl)
 
 # Apply the best candidate model to make predictions
-dt_pred3 <- predict(dt3, telco_test_normal[-31])
+svm1_pred <- predict(svm1, telco_normal[-31])
 
 # Create a confusion matrix
-dt3_cm <- confusionMatrix(data = dt_pred3, reference = as.factor(telco_test_normal$Churn), positive = "1")
+svm1_cm <- confusionMatrix(data = as.factor(svm1_pred), reference = as.factor(telco_labels), positive = "1")
 
-dt3_cm
+# Show the confusion matrix
+svm1_cm
 
 # Get accuracy and kappa values
-dt3_acc <- as.numeric(dt3_cm$overall['Accuracy'])
-dt3_kappa <- as.numeric(dt3_cm$overall['Kappa'])
-dt3_sens <- as.numeric(dt3_cm$byClass['Sensitivity'])
+svm1_acc <- as.numeric(svm1_cm$overall['Accuracy'])
+svm1_kappa <- as.numeric(svm1_cm$overall['Kappa'])
+svm1_sens <- as.numeric(svm1_cm$byClass['Sensitivity'])
 ```
 <br>
-> The improved model model based on the Caret package saw an accuracy of `r dt3_acc` and a Kappa value of `r dt3_kappa`.
+> The SVM model with a linear kernel achieved an accuracy of `r svm1_acc` and a Kappa value of `r svm1_kappa`.
 
-## Support Vector Machine (SVM)
+### SVM Radial
+```{r, cache = TRUE}
+set.seed(300)
+
+# Customize train() with the control list and grid of parameters 
+svm2 <- train(Churn ~ ., data = telco_normal, method = "svmRadial",
+           metric = "Kappa",
+           trControl = ctrl)
+
+# Apply the best candidate model to make predictions
+svm2_pred <- predict(svm2, telco_normal[-31])
+
+# Create a confusion matrix
+svm2_cm <- confusionMatrix(data = as.factor(svm2_pred), reference = as.factor(telco_labels), positive = "1")
+
+# Show the confusion matrix
+svm2_cm
+
+# Get accuracy and kappa values
+svm2_acc <- as.numeric(svm2_cm$overall['Accuracy'])
+svm2_kappa <- as.numeric(svm2_cm$overall['Kappa'])
+svm2_sens <- as.numeric(svm2_cm$byClass['Sensitivity'])
+```
+<br>
+> The SVM model with a radial kernel achieved an accuracy of `r svm2_acc` and a Kappa value of `r svm2_kappa`.
+
+### SVM Poly
+```{r, cache = TRUE}
+set.seed(300)
+
+# Customize train() with the control list and grid of parameters 
+svm3 <- train(Churn ~ ., data = telco_normal, method = "svmPoly",
+           metric = "Kappa",
+           trControl = ctrl)
+
+# Apply the best candidate model to make predictions
+svm3_pred <- predict(svm3, telco_normal[-31])
+
+# Create a confusion matrix
+svm3_cm <- confusionMatrix(data = as.factor(svm3_pred), reference = as.factor(telco_labels), positive = "1")
+
+# Show the confusion matrix
+svm3_cm
+
+# Get accuracy and kappa values
+svm3_acc <- as.numeric(svm3_cm$overall['Accuracy'])
+svm3_kappa <- as.numeric(svm3_cm$overall['Kappa'])
+svm3_sens <- as.numeric(svm3_cm$byClass['Sensitivity'])
+```
+<br>
+> The SVM model with a poly kernel achieved an accuracy of `r svm3_acc` and a Kappa value of `r svm3_kappa`.
+
+## First-Layer Results
 
 ```{r}
-# Create an SVM model
-svm_model <- ksvm(Churn ~ ., data = telco_train_normal, kernel = "vanilladot")
+# Combine all accuracy, kappa, and sensitivity values
+accuracy <- c(lm1_acc, lm2_acc, ann1_acc, knn1_acc, dt1_acc, dt2_acc, svm1_acc, svm2_acc, svm3_acc)
+kappa <- c(lm1_kappa, lm2_kappa, ann1_kappa, knn1_kappa, dt1_kappa, dt2_kappa, svm1_kappa, svm2_kappa, svm3_kappa)
+sens <- c(lm1_sens, lm2_sens, ann1_sens, knn1_sens, dt1_sens, dt2_sens, svm1_sens, svm2_sens, svm3_sens)
 
-# Predict the response variable
-svm_pred <- predict(svm_model, telco_test_normal)
+# Create a dataframe with all values
+results <- data.frame(accuracy, kappa, sens)
+rownames(results) <- c("LR1", "LR2", "ANN1", "kNN1", "DT1", "DT2", "SVM1", "SVM2", "SVM3")
+colnames(results) <- c("Accuracy", "Kappa", "Sensitivity")
 
-# Create a crosstable
-CrossTable(telco_test_normal$Churn, svm_pred, prop.chisq = F, dnn = c('Actual Churn', 'Predicted Churn'))
-
-# Create a confusion matrix
-svm_cm <- confusionMatrix(data = svm_pred, reference = as.factor(telco_test_normal$Churn), positive = "1")
-
-svm_cm
-
-# Get accuracy and kappa values
-svm_acc <- as.numeric(svm_cm$overall['Accuracy'])
-svm_kappa <- as.numeric(svm_cm$overall['Kappa'])
-svm_sens <- as.numeric(svm_cm$byClass['Sensitivity'])
+# Show the created dataframe
+results
 ```
-<br>
-> The SVM model with a vanilladot kernel achieved an accuracy of `r svm_acc` and a Kappa value of `r svm_kappa`.
 
 # Second-Level Model
 
 ```{r}
 # Combine everything into one big dataframe for our stacked model.
-combineddf <- data.frame(lm_pred, ann_predicted_churn3, knn_pred2, dt_pred3, svm_pred, telco_test_normal$Churn)
+combineddf <- data.frame(lr1pred, ann1pred, knn1pred, dt2_pred, svm2_pred, telco_labels)
 
 # Change colnames to something more intuitive
 colnames(combineddf) <- c("LR", "ANN", "kNN", "DT", "SVM", "Actual")
@@ -595,54 +539,55 @@ summary(combineddf)
 ```
 
 ## Simple Stacked Model
-```{r}
-# Let's split everything into a train and test set based on 75-25 split (again)
-sm_telco_train <- combineddf[1:(0.75*nrow(combineddf)),]
-sm_telco_test <- combineddf[(0.75*nrow(combineddf)+1):nrow(combineddf),]
+```{r, cache = TRUE}
+set.seed(300)
 
-# Run decision tree again!
-dt_sm <- C5.0(sm_telco_train[-6], as.factor(sm_telco_train$Actual))
+# Use expand.grid() to create grid of tuning parameters
+grid <- expand.grid(.model = "tree",
+                    .trials = c(1, 5, 10, 15, 20, 25, 30),
+                    .winnow = "FALSE")
 
-# Plot for visual purposes...
-plot(dt_sm)
+# Customize train() with the control list and grid of parameters 
+dt_comb <- train(Actual ~ ., data = combineddf, method = "C5.0",
+           metric = "Kappa",
+           trControl = ctrl,
+           tuneGrid = grid)
 
-# Predict the response variable
-dt_pred_comb <- predict(dt_sm, sm_telco_test)
-
-# Create a crosstable
-CrossTable(sm_telco_test$Actual, dt_pred_comb, prop.chisq = F, dnn = c("Actual Churn", "Predicted Churn"))
+# Apply the best candidate model to make predictions
+dt_comb_pred <- predict(dt_comb, combineddf[-6])
 
 # Create a confusion matrix
-dt_comb_cm <- confusionMatrix(data = as.factor(dt_pred_comb), reference = as.factor(sm_telco_test$Actual), positive  = "1")
+dt_comb_cm <- confusionMatrix(data = as.factor(dt_comb_pred), reference = as.factor(combineddf$Actual), positive = "1")
 
+# Show the confusion matrix
 dt_comb_cm
 
 # Get accuracy and kappa values
-comb_acc <- as.numeric(dt_comb_cm$overall['Accuracy'])
-comb_kappa <- as.numeric(dt_comb_cm$overall['Kappa'])
-comb_sens <- as.numeric(dt_comb_cm$byClass['Sensitivity'])
+dt_comb_acc <- as.numeric(dt_comb_cm$overall['Accuracy'])
+dt_comb_kappa <- as.numeric(dt_comb_cm$overall['Kappa'])
+dt_comb_sens <- as.numeric(dt_comb_cm$byClass['Sensitivity'])
 ```
 <br>
-> The combined model achieved an accuracy of `r comb_acc`, a Kappa value of `r comb_kappa`, and a sensitivity score of `r comb_sens`.
+> The combined model achieved an accuracy of `r dt_comb_acc`, a Kappa value of `r dt_comb_kappa`, and a sensitivity score of `r dt_comb_sens`.
 
 ```{r}
 # Combine all accuracy, kappa, and sensitivity values
-accuracy <- c(comb_acc, lm_acc, ann3_acc, knn2_acc, dt3_acc, svm_acc)
-kappa <- c(comb_kappa, lm_kappa, ann3_kappa, knn2_kappa, dt3_kappa, svm_kappa)
-sens <- c(comb_sens, lm_sens, ann3_sens, knn2_sens, dt3_sens, svm_sens)
+accuracy <- c(lm1_acc, ann1_acc, knn1_acc, dt2_acc, svm2_acc, dt_comb_acc)
+kappa <- c(lm1_kappa, ann1_kappa, knn1_kappa, dt2_kappa, svm2_kappa, dt_comb_kappa)
+sens <- c(lm1_sens, ann1_sens, knn1_sens, dt2_sens, svm2_sens, dt_comb_sens)
 
 # Create a dataframe with all values
 results <- data.frame(accuracy, kappa, sens)
-rownames(results) <- c("Combined", "LR", "ANN", "kNN", "DT", "SVM")
+rownames(results) <- c("LR1", "ANN1", "kNN1", "DT2", "SVM2", "Combined")
 colnames(results) <- c("Accuracy", "Kappa", "Sensitivity")
 
 # Show the created dataframe
 results
 ```
 <br>
-> Thus, the combined model has achieved a relatively high accuracy score, but its Kappa value is lower than that of ANN while its sensitivity is lower than that of ANN and kNN. That being said, we need to keep in mind that the scores for the combined model are based on smaller dataset. In this project, we are specifically interested in minimizing the number of false negatives - unnoticed instances of churn. We will try to reduce that number (and thus increase the combined model's sensitivity score) using an **error cost matrix**.
+> Thus, the combined model has achieved the highest accuracy score and Kappa value, but its sensitivity is lower than that of ANN and kNN. In this project, we are specifically interested in minimizing the number of false negatives - unnoticed instances of churn. We will try to reduce that number (and thus increase the combined model's sensitivity score) using an **error cost matrix**.
 
-## Error Cost Matrix
+## Error Cost Matrix - NEED TO UPDATE
 ```{r}
 # Create a cost matrix
 error_cost <- matrix(c(0, 1, 3, 0), nrow = 2)
