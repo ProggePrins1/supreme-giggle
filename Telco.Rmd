@@ -182,11 +182,9 @@ Overall, we've seen a lot of interesting findings that indicates the dataset's a
 > We've seen that **gender** appears to be (somewhat) **indifferent** to the churn rate, whereas the **contract type, device protection, online security, and payment method** are variables to look out for. Additionally, we've realized that **interaction effects must be considered**, too, as a **month-to-month contract is almost always paired with no online security**. *Regardless, it is almost certain that we've missed numerous important effects, and that's why we'll run numerous types of ML algorithms and regression models.*
 
 ## Business Questions
-> In this project, we are trying to answer **two overarching questions**:
+> In this project, we are trying to answer **one overarching question**:
 
-> 1) *Are there customer groups with certain demographic characteristics or product preferences that tend to stop buying our services more often than others?* We will try to investigate this in two ways. First, we will try to explore differences in churn rates across various explanatory features in our dataset (Exploratory Data Analysis section). Next, we will try to aggregate the data by running the k-means clustering algorithm to identify customer segments with the highest churn rate (Clustering section).
-
-> 2) *Can we, at least with a 90% accuracy, predict whether a certain customer will churn based on their demographic characteristics and product preferences?* To this end, we plan to create machine learning algorithms that will determine whether a given customer will eventually stop buying our services or not. Applying our models to multiple test cases will help us derive an accuracy score.
+> *Can we, at least with a 90% accuracy, predict whether a certain customer will churn based on their demographic characteristics and product preferences?* To this end, we plan to create machine learning algorithms that will determine whether a given customer will eventually stop buying our services or not. Applying our models to multiple test cases will help us derive an accuracy score.
 
 <<<<<<< HEAD
 > Overall, our goal is to improve retention among both current and future customers. We can identify segments that have an unusually high churn rates and try to develop targeted retention strategies for them. 
@@ -568,7 +566,7 @@ dt_comb_kappa <- as.numeric(dt_comb_cm$overall['Kappa'])
 dt_comb_sens <- as.numeric(dt_comb_cm$byClass['Sensitivity'])
 ```
 <br>
-> The combined model achieved an accuracy of `r dt_comb_acc`, a Kappa value of `r dt_comb_kappa`, and a sensitivity score of `r dt_comb_sens`.
+> The combined model achieved an accuracy of `r dt_comb_acc`, a Kappa value of `r dt_comb_kappa`, and a sensitivity score of `r dt_comb_sens`. 
 
 ```{r}
 # Combine all accuracy, kappa, and sensitivity values
@@ -608,6 +606,36 @@ dt_comb2_sens <- as.numeric(dt_comb2_cm$byClass['Sensitivity'])
 ```
 <br>
 > By applying a cost matrix, we can increase our senstivity score to `r dt_comb2_sens` but the accuracy rate falls to `r dt_comb2_acc`. That is primarily because we are increasing the number of false positives. The goal of our project is to identify individuals with a high risk of churn and target them with retention strategies. In our next submission for this project, we will look into the costs associated with losing customers as well as running such retention strategies. With that information, we will be able to estimate how much money the company will be able to save by targeting only customers who are at risk of churn according to the model.
+
+```{r, cache = TRUE}
+set.seed(300)
+
+# Use expand.grid() to create grid of tuning parameters
+grid <- expand.grid(.model = "tree",
+                    .trials = c(1, 5, 10, 15, 20, 25, 30),
+                    .winnow = "FALSE")
+
+# Customize train() with the control list and grid of parameters 
+dt_comb <- train(Actual ~ ., data = combineddf, method = "C5.0Cost",
+           metric = "Kappa",
+           trControl = ctrl,
+           tuneGrid = grid,
+           )
+
+# Apply the best candidate model to make predictions
+dt_comb_pred <- predict(dt_comb, combineddf[-6])
+
+# Create a confusion matrix
+dt_comb_cm <- confusionMatrix(data = as.factor(dt_comb_pred), reference = as.factor(combineddf$Actual), positive = "1")
+
+# Show the confusion matrix
+dt_comb_cm
+
+# Get accuracy and kappa values
+dt_comb_acc <- as.numeric(dt_comb_cm$overall['Accuracy'])
+dt_comb_kappa <- as.numeric(dt_comb_cm$overall['Kappa'])
+dt_comb_sens <- as.numeric(dt_comb_cm$byClass['Sensitivity'])
+```
 
 ```{r}
 # Extract numbers from the table
