@@ -596,7 +596,7 @@ combined_train <- combineddf[1:(nrow(combineddf)*0.7),]
 combined_test <- combineddf[((nrow(combineddf)*0.7)+1):nrow(combineddf),]
 
 # Create a cost matrix
-error_cost <- matrix(c(0, 1, 3, 0), nrow = 2)
+error_cost <- matrix(c(0, 1, 4, 0), nrow = 2)
 
 # Apply the cost matrix to the tree
 dt2_comb <- C5.0(as.factor(Actual) ~ ., data = combined_train, costs = error_cost)

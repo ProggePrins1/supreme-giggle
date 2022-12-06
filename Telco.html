@@ -2017,9 +2017,9 @@ Cleaning Data</h3>
 </div>
 <div id="first-level-models" class="section level1" number="2">
 <h1><span class="header-section-number">2</span> First-Level Models</h1>
-<div id="logistic-regression---need-to-update-interpretation-with-in-line-code" class="section level2" number="2.1">
-<h2><span class="header-section-number">2.1</span> Logistic Regression -
-NEED TO UPDATE INTERPRETATION WITH IN-LINE CODE</h2>
+<div id="logistic-regression" class="section level2" number="2.1">
+<h2><span class="header-section-number">2.1</span> Logistic
+Regression</h2>
 <div id="simple-lr" class="section level3" number="2.1.1">
 <h3><span class="header-section-number">2.1.1</span> Simple LR</h3>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
@@ -2134,7 +2134,9 @@ NEED TO UPDATE INTERPRETATION WITH IN-LINE CODE</h2>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>lm1_acc <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(lm1_cm<span class="sc">$</span>overall[<span class="st">&#39;Accuracy&#39;</span>])</span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>lm1_kappa <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(lm1_cm<span class="sc">$</span>overall[<span class="st">&#39;Kappa&#39;</span>])</span>
 <span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>lm1_sens <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(lm1_cm<span class="sc">$</span>byClass[<span class="st">&#39;Sensitivity&#39;</span>])</span></code></pre></div>
-<p><br> &gt; What immediately stands out in this model is the high
+<p><br> &gt; The initial logistic regression gave us an accuracy score
+of`0.8073264, a Kappa value of 0.4780985, and a sesntivity value of
+0.5537721. &gt; What immediately stands out in this model is the high
 number of <strong>false negatives</strong> where our model predicts that
 a customer would be retained (churn = 0), when it isn’t the case in
 reality (i.e., they churned; churn = 1). Since this is an initial and
@@ -2221,12 +2223,13 @@ first intermediate submission.</p>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>lm2_acc <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(lm2_cm<span class="sc">$</span>overall[<span class="st">&#39;Accuracy&#39;</span>])</span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>lm2_kappa <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(lm2_cm<span class="sc">$</span>overall[<span class="st">&#39;Kappa&#39;</span>])</span>
 <span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>lm2_sens <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(lm2_cm<span class="sc">$</span>byClass[<span class="st">&#39;Sensitivity&#39;</span>])</span></code></pre></div>
-<p><br> &gt; INTERPRETATION HERE</p>
+<p><br> &gt; The improved logistic regression gave us an accuracy score
+of`0.8006531, a Kappa value of 0.4581643, and a sesntivity value of
+0.5361156.</p>
 </div>
 </div>
-<div id="ann---elaborate-on-the-interpration" class="section level2" number="2.2">
-<h2><span class="header-section-number">2.2</span> ANN - ELABORATE ON
-THE INTERPRATION</h2>
+<div id="ann" class="section level2" number="2.2">
+<h2><span class="header-section-number">2.2</span> ANN</h2>
 <div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up a grid to test different hidden layers</span></span>
@@ -2513,9 +2516,8 @@ THE INTERPRATION</h2>
 <p><br> &gt; First ANN gave us an accuracy score of`0.8076104, a Kappa
 value of 0.4818601, and a sesntivity value of 0.5628678.</p>
 </div>
-<div id="knn---update-interpretations" class="section level2" number="2.3">
-<h2><span class="header-section-number">2.3</span> kNN - UPDATE
-INTERPRETATIONS</h2>
+<div id="knn" class="section level2" number="2.3">
+<h2><span class="header-section-number">2.3</span> kNN</h2>
 <div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Use expand.grid() to create grid of tuning parameters</span></span>
@@ -2566,12 +2568,11 @@ INTERPRETATIONS</h2>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>knn1_acc <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(knn1_cm<span class="sc">$</span>overall[<span class="st">&#39;Accuracy&#39;</span>])</span>
 <span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>knn1_kappa <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(knn1_cm<span class="sc">$</span>overall[<span class="st">&#39;Kappa&#39;</span>])</span>
 <span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>knn1_sens <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(knn1_cm<span class="sc">$</span>byClass[<span class="st">&#39;Sensitivity&#39;</span>])</span></code></pre></div>
-<p><br> &gt; The kNN model achieved a higher accuracy (0.7968195) and a
-higher Kappa value (0.4671409).</p>
+<p><br> &gt; The kNN model gave us an accuracy score of`0.7968195, a
+Kappa value of 0.4671409, and a sesntivity value of 0.5826645.</p>
 </div>
-<div id="decision-tree---update-interpretations" class="section level2" number="2.4">
-<h2><span class="header-section-number">2.4</span> Decision Tree -
-UPDATE INTERPRETATIONS</h2>
+<div id="decision-tree" class="section level2" number="2.4">
+<h2><span class="header-section-number">2.4</span> Decision Tree</h2>
 <div id="simple-dt" class="section level3" number="2.4.1">
 <h3><span class="header-section-number">2.4.1</span> Simple DT</h3>
 <div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
@@ -2618,9 +2619,10 @@ UPDATE INTERPRETATIONS</h2>
 <span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>dt1_acc <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(dt1_cm<span class="sc">$</span>overall[<span class="st">&#39;Accuracy&#39;</span>])</span>
 <span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>dt1_kappa <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(dt1_cm<span class="sc">$</span>overall[<span class="st">&#39;Kappa&#39;</span>])</span>
 <span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>dt1_sens <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(dt1_cm<span class="sc">$</span>byClass[<span class="st">&#39;Sensitivity&#39;</span>])</span></code></pre></div>
-<p><br> &gt; A model based on the Caret package saw a slightly higher
-accuracy (0.8139997) but a lower Kappa value (0.4706675). We will now
-try to tune the hyperparameters of the model.</p>
+<p><br> &gt; Our in initial Decision Tree model gave us an accuracy
+score of`0.8139997, a Kappa value of 0.4706675, and a sesntivity value
+of 0.4949171. We will now try to tune the hyperparameters of the
+model.</p>
 <div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Use expand.grid() to create grid of tuning parameters</span></span>
@@ -2698,13 +2700,13 @@ try to tune the hyperparameters of the model.</p>
 <span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>dt2_acc <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(dt2_cm<span class="sc">$</span>overall[<span class="st">&#39;Accuracy&#39;</span>])</span>
 <span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>dt2_kappa <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(dt2_cm<span class="sc">$</span>overall[<span class="st">&#39;Kappa&#39;</span>])</span>
 <span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>dt2_sens <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(dt2_cm<span class="sc">$</span>byClass[<span class="st">&#39;Sensitivity&#39;</span>])</span></code></pre></div>
-<p><br> &gt; The improved model model based on the Caret package saw an
-accuracy of 0.8086043 and a Kappa value of 0.4835174.</p>
+<p><br> &gt; The improved model model saw an accuracy of 0.8086043, a
+Kappa value of 0.4835174 and a sensitivity value of 0.5617978.</p>
 </div>
 </div>
-<div id="support-vector-machine-svm---update-interpretations" class="section level2" number="2.5">
+<div id="support-vector-machine-svm" class="section level2" number="2.5">
 <h2><span class="header-section-number">2.5</span> Support Vector
-Machine (SVM) - UPDATE INTERPRETATIONS</h2>
+Machine (SVM)</h2>
 <div id="svm-linear" class="section level3" number="2.5.1">
 <h3><span class="header-section-number">2.5.1</span> SVM Linear</h3>
 <div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
@@ -2754,7 +2756,8 @@ Machine (SVM) - UPDATE INTERPRETATIONS</h2>
 <span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>svm1_kappa <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(svm1_cm<span class="sc">$</span>overall[<span class="st">&#39;Kappa&#39;</span>])</span>
 <span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>svm1_sens <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(svm1_cm<span class="sc">$</span>byClass[<span class="st">&#39;Sensitivity&#39;</span>])</span></code></pre></div>
 <p><br> &gt; The SVM model with a linear kernel achieved an accuracy of
-0.8006531 and a Kappa value of 0.4587524.</p>
+0.8006531, a Kappa value of 0.4587524 and a sensitivity value of
+0.5377207.</p>
 </div>
 <div id="svm-radial" class="section level3" number="2.5.2">
 <h3><span class="header-section-number">2.5.2</span> SVM Radial</h3>
@@ -2805,7 +2808,8 @@ Machine (SVM) - UPDATE INTERPRETATIONS</h2>
 <span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>svm2_kappa <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(svm2_cm<span class="sc">$</span>overall[<span class="st">&#39;Kappa&#39;</span>])</span>
 <span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>svm2_sens <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(svm2_cm<span class="sc">$</span>byClass[<span class="st">&#39;Sensitivity&#39;</span>])</span></code></pre></div>
 <p><br> &gt; The SVM model with a radial kernel achieved an accuracy of
-0.8091722 and a Kappa value of 0.4622315.</p>
+0.8091722, a Kappa value of 0.4622315 and a sensitivity value of
+0.4997325.</p>
 </div>
 <div id="svm-poly" class="section level3" number="2.5.3">
 <h3><span class="header-section-number">2.5.3</span> SVM Poly</h3>
@@ -2856,13 +2860,13 @@ Machine (SVM) - UPDATE INTERPRETATIONS</h2>
 <span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>svm3_kappa <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(svm3_cm<span class="sc">$</span>overall[<span class="st">&#39;Kappa&#39;</span>])</span>
 <span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>svm3_sens <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(svm3_cm<span class="sc">$</span>byClass[<span class="st">&#39;Sensitivity&#39;</span>])</span></code></pre></div>
 <p><br> &gt; The SVM model with a poly kernel achieved an accuracy of
-0.8006531 and a Kappa value of 0.4583605.</p>
+0.8006531, a Kappa value of 0.4583605 and a sensitivity value of
+0.5366506.</p>
 </div>
 </div>
-<div id="first-layer-results---huge-interpretation-needed-here---summary-of-all-results-and-explanation-for-which-models-we-chose-for-the-second-layer" class="section level2" number="2.6">
-<h2><span class="header-section-number">2.6</span> First-Layer Results -
-HUGE INTERPRETATION NEEDED HERE - SUMMARY OF ALL RESULTS AND EXPLANATION
-FOR WHICH MODELS WE CHOSE FOR THE SECOND LAYER</h2>
+<div id="first-layer-results" class="section level2" number="2.6">
+<h2><span class="header-section-number">2.6</span> First-Layer
+Results</h2>
 <div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all accuracy, kappa, and sensitivity values</span></span>
 <span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> <span class="fu">c</span>(lm1_acc, lm2_acc, ann1_acc, knn1_acc, dt1_acc, dt2_acc, svm1_acc, svm2_acc, svm3_acc)</span>
 <span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="fu">c</span>(lm1_kappa, lm2_kappa, ann1_kappa, knn1_kappa, dt1_kappa, dt2_kappa, svm1_kappa, svm2_kappa, svm3_kappa)</span>
@@ -2885,6 +2889,21 @@ FOR WHICH MODELS WE CHOSE FOR THE SECOND LAYER</h2>
 ## SVM1 0.8006531 0.4587524   0.5377207
 ## SVM2 0.8091722 0.4622315   0.4997325
 ## SVM3 0.8006531 0.4583605   0.5366506</code></pre>
+<p><br> &gt; With our first-layer results we decide which models we
+choose for the second-level model. We make our decision based on the
+Kappa score for the respective models. Using logistic regression the
+first model has bott the highest accuracy and Kappa, 0.8073264 and
+0.4780985. Regarding our ANN and kNN models there are only one of each
+and both will be used in our second-level model. It is worth noting that
+these models have the highest sensitivity of all models with ANN having
+a value of 0.5628678 and kNN having a value of 0.7968195. Our two
+decision tree models share a similiar accuracy, however the second model
+has both a higher Kappa, 0.4835174, and sensitivity, 0.5617978, which is
+why we are continuing further with this model. For the support vector
+machine models, SVM, we have utilised three models while using different
+kernels for each model. The model using radial kernel achieved the
+highest kappa value of 0.4622315, and is therefore the one we are using
+in the second-level model</p>
 </div>
 </div>
 <div id="second-level-model" class="section level1" number="3">
@@ -3056,7 +3075,7 @@ Matrix</h2>
 <span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>combined_test <span class="ot">&lt;-</span> combineddf[((<span class="fu">nrow</span>(combineddf)<span class="sc">*</span><span class="fl">0.7</span>)<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span><span class="fu">nrow</span>(combineddf),]</span>
 <span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb89-7"><a href="#cb89-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a cost matrix</span></span>
-<span id="cb89-8"><a href="#cb89-8" aria-hidden="true" tabindex="-1"></a>error_cost <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">0</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span>
+<span id="cb89-8"><a href="#cb89-8" aria-hidden="true" tabindex="-1"></a>error_cost <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">0</span>), <span class="at">nrow =</span> <span class="dv">2</span>)</span>
 <span id="cb89-9"><a href="#cb89-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb89-10"><a href="#cb89-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply the cost matrix to the tree</span></span>
 <span id="cb89-11"><a href="#cb89-11" aria-hidden="true" tabindex="-1"></a>dt2_comb <span class="ot">&lt;-</span> <span class="fu">C5.0</span>(<span class="fu">as.factor</span>(Actual) <span class="sc">~</span> ., <span class="at">data =</span> combined_train, <span class="at">costs =</span> error_cost)</span></code></pre></div>
