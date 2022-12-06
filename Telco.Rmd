@@ -253,7 +253,7 @@ telco_labels <- telco_normal$Churn
 ```
 
 # First-Level Models
-## Logistic Regression - NEED TO UPDATE INTERPRETATION WITH IN-LINE CODE
+## Logistic Regression
 ### Simple LR
 ```{r}
 set.seed(300)
@@ -283,6 +283,7 @@ lm1_kappa <- as.numeric(lm1_cm$overall['Kappa'])
 lm1_sens <- as.numeric(lm1_cm$byClass['Sensitivity'])
 ```
 <br>
+> The initial logistic regression gave us an accuracy score of``r lm1_acc`, a Kappa value of `r lm1_kappa`, and a sesntivity value of `r lm1_sens`.
 > What immediately stands out in this model is the high number of **false negatives** where our model predicts that a customer would be retained (churn = 0), when it isn't the case in reality (i.e., they churned; churn = 1). Since this is an initial and relatively simple model, that is okay for now, as we will continue to work with this dataset to improve the prediction accuracy and bring down the false negatives simultaneously. This is the end of our code for the first intermediate submission.
 
 ### Improved LR
@@ -309,9 +310,9 @@ lm2_kappa <- as.numeric(lm2_cm$overall['Kappa'])
 lm2_sens <- as.numeric(lm2_cm$byClass['Sensitivity'])
 ```
 <br>
-> INTERPRETATION HERE
+> The improved logistic regression gave us an accuracy score of``r lm2_acc`, a Kappa value of `r lm2_kappa`, and a sesntivity value of `r lm2_sens`.
 
-## ANN - ELABORATE ON THE INTERPRATION
+## ANN
 ```{r, cache = TRUE}
 set.seed(300)
 
@@ -340,7 +341,7 @@ ann1_sens <- as.numeric(ann1_cm$byClass['Sensitivity'])
 <br>
 > First ANN gave us an accuracy score of``r ann1_acc`, a Kappa value of `r ann1_kappa`, and a sesntivity value of `r ann1_sens`.
 
-## kNN - UPDATE INTERPRETATIONS
+## kNN
 ```{r, cache = TRUE}
 set.seed(300)
 
@@ -368,9 +369,9 @@ knn1_kappa <- as.numeric(knn1_cm$overall['Kappa'])
 knn1_sens <- as.numeric(knn1_cm$byClass['Sensitivity'])
 ```
 <br>
-> The kNN model achieved a higher accuracy (`r knn1_acc`) and a higher Kappa value (`r knn1_kappa`).
+> The kNN model gave us an accuracy score of``r knn1_acc`, a Kappa value of `r knn1_kappa`, and a sesntivity value of `r knn1_sens`.
 
-## Decision Tree - UPDATE INTERPRETATIONS
+## Decision Tree
 ### Simple DT
 ```{r, cache = TRUE}
 set.seed(300)
@@ -393,7 +394,7 @@ dt1_kappa <- as.numeric(dt1_cm$overall['Kappa'])
 dt1_sens <- as.numeric(dt1_cm$byClass['Sensitivity'])
 ```
 <br>
-  > A model based on the Caret package saw a slightly higher accuracy (`r dt1_acc`)  but a lower Kappa value (`r dt1_kappa`). We will now try to tune the hyperparameters of the model.
+> Our in initial Decision Tree model gave us an accuracy score of``r dt1_acc`, a Kappa value of `r dt1_kappa`, and a sesntivity value of `r dt1_sens`. We will now try to tune the hyperparameters of the model.
 
 ```{r, cache = TRUE}
 set.seed(300)
@@ -423,9 +424,9 @@ dt2_kappa <- as.numeric(dt2_cm$overall['Kappa'])
 dt2_sens <- as.numeric(dt2_cm$byClass['Sensitivity'])
 ```
 <br>
-> The improved model model based on the Caret package saw an accuracy of `r dt2_acc` and a Kappa value of `r dt2_kappa`.
+> The improved model model  saw an accuracy of `r dt2_acc`, a Kappa value of `r dt2_kappa` and a sensitivity value of `r dt2_sens`.
 
-## Support Vector Machine (SVM) - UPDATE INTERPRETATIONS
+## Support Vector Machine (SVM) 
 ### SVM Linear
 ```{r, cache = TRUE}
 set.seed(300)
@@ -450,7 +451,7 @@ svm1_kappa <- as.numeric(svm1_cm$overall['Kappa'])
 svm1_sens <- as.numeric(svm1_cm$byClass['Sensitivity'])
 ```
 <br>
-> The SVM model with a linear kernel achieved an accuracy of `r svm1_acc` and a Kappa value of `r svm1_kappa`.
+> The SVM model with a linear kernel achieved an accuracy of `r svm1_acc`, a Kappa value of `r svm1_kappa` and a sensitivity value of `r svm1_sens`.
 
 ### SVM Radial
 ```{r, cache = TRUE}
@@ -476,7 +477,7 @@ svm2_kappa <- as.numeric(svm2_cm$overall['Kappa'])
 svm2_sens <- as.numeric(svm2_cm$byClass['Sensitivity'])
 ```
 <br>
-> The SVM model with a radial kernel achieved an accuracy of `r svm2_acc` and a Kappa value of `r svm2_kappa`.
+> The SVM model with a radial kernel achieved an accuracy of `r svm2_acc`, a Kappa value of `r svm2_kappa` and a sensitivity value of `r svm2_sens`.
 
 ### SVM Poly
 ```{r, cache = TRUE}
@@ -502,9 +503,9 @@ svm3_kappa <- as.numeric(svm3_cm$overall['Kappa'])
 svm3_sens <- as.numeric(svm3_cm$byClass['Sensitivity'])
 ```
 <br>
-> The SVM model with a poly kernel achieved an accuracy of `r svm3_acc` and a Kappa value of `r svm3_kappa`.
+> The SVM model with a poly kernel achieved an accuracy of `r svm3_acc`, a Kappa value of `r svm3_kappa` and a sensitivity value of `r svm3_sens`.
 
-## First-Layer Results - HUGE INTERPRETATION NEEDED HERE - SUMMARY OF ALL RESULTS AND EXPLANATION FOR WHICH MODELS WE CHOSE FOR THE SECOND LAYER
+## First-Layer Results 
 
 ```{r}
 # Combine all accuracy, kappa, and sensitivity values
@@ -520,6 +521,8 @@ colnames(results) <- c("Accuracy", "Kappa", "Sensitivity")
 # Show the created dataframe
 results
 ```
+<br>
+> With our first-layer results we decide which models we choose for the second-level model. We make our decision based on the Kappa score for the respective models. Using logistic regression the first model has bott the highest accuracy and Kappa, `r lm1_acc` and `r lm1_kappa`. Regarding our ANN and kNN models there are only one of each and both will be used in our second-level model. It is worth noting that these models have the highest sensitivity of all models with ANN having a value of `r ann1_sens` and kNN having a value of `r knn1_acc`. Our two decision tree models share a similiar accuracy, however the second model has both a higher Kappa, `r dt2_kappa`, and sensitivity, `r dt2_sens`, which is why we are continuing further with this model. For the support vector machine models, SVM, we have utilised three models while using different kernels for each model. The model using radial kernel achieved the highest kappa value of `r svm2_kappa`, and is therefore the one we are using in the second-level model
 
 # Second-Level Model
 
