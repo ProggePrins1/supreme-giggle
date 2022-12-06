@@ -662,7 +662,7 @@ telco_monthly_gppu <- telco_monthly_arpu * telco_gross_profit_margin
 retention_cost_per_user <- 50
 ```
 <br>
-The average trailing twelve months' net profit margin for companies in the telecommunications sector, as of Q3 2022, is approximately 12.3%. Gross profit margins for the sector can run as high as 70% to 80%, but extremely high overhead expenses erode much of that initial profit balance ("Communications Services Industry Profitability by Quarter, Gross, Operating and Net Margin From 3 Q 2022"). Assuming a 75% gross profit margin, TelCo's monthly gross profit per user makes up $`r round(telco_monthly_gppu,2)`. 
+The average TTM net profit margin for companies in the telecommunications sector, as of Q3 2022, is approximately 12.3%. Gross profit margins for the sector can run as high as 70% to 80%, but extremely high overhead expenses erode much of that initial profit balance ("Communications Services Industry Profitability by Quarter, Gross, Operating and Net Margin From Q3 2022"). Assuming a 75% gross profit margin, TelCo's monthly gross profit per user makes up $`r round(telco_monthly_gppu,2)`. 
 
 ### Lifetime assumptions
 ```{r}
@@ -675,8 +675,6 @@ non_churn_tenure = mean(filter(telco, Churn == 0)$tenure)
 # Calculate the lost lifespan of churned customers
 lost_lifespan = non_churn_tenure - churn_tenure
 ```
-<br>
-The average TTM net profit margin for companies in the telecommunications sector, as of Q3 2022, is approximately 12.3%. Gross profit margins for the sector can run as high as 70% to 80%, but extremely high overhead expenses erode much of that initial profit balance ("Communications Services Industry Profitability by Quarter, Gross, Operating and Net Margin From 3 Q 2022"). Assuming a 75% gross profit margin, TelCo's monthly gross profit per user makes up $`r round(telco_monthly_gppu,2)`.
 <br>
 
 ## Profitability Implications
