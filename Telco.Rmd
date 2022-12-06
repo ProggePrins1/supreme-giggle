@@ -584,69 +584,191 @@ results
 <br>
 > Thus, the combined model has achieved the highest accuracy score and Kappa value, but its sensitivity is lower than that of ANN and kNN. In this project, we are specifically interested in minimizing the number of false negatives - unnoticed instances of churn. We will try to reduce that number (and thus increase the combined model's sensitivity score) using an **error cost matrix**.
 
-## Error Cost Matrix - NEED TO UPDATE
+## Error Cost Matrix
 ```{r}
+library(C50)
+
+# Do a 70-30 train-test split
+combined_train <- combineddf[1:(nrow(combineddf)*0.7),]
+combined_test <- combineddf[((nrow(combineddf)*0.7)+1):nrow(combineddf),]
+
 # Create a cost matrix
 error_cost <- matrix(c(0, 1, 3, 0), nrow = 2)
 
 # Apply the cost matrix to the tree
-comb_dt2 <- C5.0(sm_telco_train[-6], as.factor(sm_telco_train$Actual), costs = error_cost)
-comb_dtpred2 <- predict(comb_dt2, sm_telco_test)
+dt2_comb <- C5.0(as.factor(Actual) ~ ., data = combined_train, costs = error_cost)
+dt2_comb_pred <- predict(dt2_comb, combined_test)
 
 # Build a confusion matrix
-dt_comb2_cm <- confusionMatrix(data = as.factor(comb_dtpred2), reference = as.factor(sm_telco_test$Actual), positive = "1")
-
-dt_comb2_cm
-
-# Get accuracy and kappa values
-dt_comb2_acc <- as.numeric(dt_comb2_cm$overall['Accuracy'])
-dt_comb2_kappa <- as.numeric(dt_comb2_cm$overall['Kappa'])
-dt_comb2_sens <- as.numeric(dt_comb2_cm$byClass['Sensitivity'])
-```
-<br>
-> By applying a cost matrix, we can increase our senstivity score to `r dt_comb2_sens` but the accuracy rate falls to `r dt_comb2_acc`. That is primarily because we are increasing the number of false positives. The goal of our project is to identify individuals with a high risk of churn and target them with retention strategies. In our next submission for this project, we will look into the costs associated with losing customers as well as running such retention strategies. With that information, we will be able to estimate how much money the company will be able to save by targeting only customers who are at risk of churn according to the model.
-
-```{r, cache = TRUE}
-set.seed(300)
-
-# Create a cost matrix
-error_cost <- matrix(c(0, 1, 3, 0), nrow = 2)
-
-# Use expand.grid() to create grid of tuning parameters
-grid <- expand.grid(.model = "tree",
-                    .trials = c(1, 5, 10, 15, 20, 25, 30),
-                    .winnow = "FALSE",
-                    .cost <- c(0, 1, 3, 0))
-
-# Customize train() with the control list and grid of parameters 
-dt_comb <- train(Actual ~ ., data = combineddf, method = "C5.0Cost",
-           metric = "Kappa",
-           trControl = ctrl,
-           tuneGrid = grid)
-
-# Apply the best candidate model to make predictions
-dt_comb_pred <- predict(dt_comb, combineddf[-6])
-
-# Create a confusion matrix
-dt_comb_cm <- confusionMatrix(data = as.factor(dt_comb_pred), reference = as.factor(combineddf$Actual), positive = "1")
+dt2_comb_cm <- confusionMatrix(data = as.factor(dt2_comb_pred), reference = as.factor(combined_test$Actual), positive = "1")
 
 # Show the confusion matrix
-dt_comb_cm
+dt2_comb_cm
 
 # Get accuracy and kappa values
-dt_comb_acc <- as.numeric(dt_comb_cm$overall['Accuracy'])
-dt_comb_kappa <- as.numeric(dt_comb_cm$overall['Kappa'])
-dt_comb_sens <- as.numeric(dt_comb_cm$byClass['Sensitivity'])
+dt2_comb_acc <- as.numeric(dt2_comb_cm$overall['Accuracy'])
+dt2_comb_kappa <- as.numeric(dt2_comb_cm$overall['Kappa'])
+dt2_comb_sens <- as.numeric(dt2_comb_cm$byClass['Sensitivity'])
 ```
 
+<br>
+> By applying a cost matrix, we can increase our senstivity score to `r dt2_comb_sens` but the accuracy rate falls to `r dt2_comb_acc`. That is primarily because we are increasing the number of false positives. The goal of our project is to identify individuals with a high risk of churn and target them with retention strategies. Next, we will look into the costs associated with losing customers as well as running such retention strategies. With that information, we will be able to estimate how much money the company will be able to save by targeting only customers who are at risk of churn according to the model.
+
+# Business Implications
+## Model Results
 ```{r}
 # Extract numbers from the table
-TN = as.numeric(dt_comb2_cm$table)[1]
-FP = as.numeric(dt_comb2_cm$table)[2]
-FN = as.numeric(dt_comb2_cm$table)[3]
-TP = as.numeric(dt_comb2_cm$table)[4]
+TN <- as.numeric(dt2_comb_cm$table)[1]
+FP <- as.numeric(dt2_comb_cm$table)[2]
+FN <- as.numeric(dt2_comb_cm$table)[3]
+TP <- as.numeric(dt2_comb_cm$table)[4]
 
-customers_at_risk = TP + FN
-customers_targeted = TP + FP
+# Find the total number of customers in the sample
+all_customers <- TP + FN + FP + TN
+
+# Find the number and percentage of customers who are indeed going to churn
+customers_at_risk <- TP + FN
+customers_at_risk_perc <- customers_at_risk / all_customers
+
+# Find the number and percentage of customers whom our model recommends targeting
+customers_targeted <- TP + FP
+customers_targeted_perc <- customers_targeted / all_customers
+
+# Find the number of churning customers not identified by the model
+missed_churn <- FN
+
+# Find the percentage of identified customers at risk
+identified_churn_perc <- TP / customers_at_risk
 ```
+<br>
+> In our sample of `r all_customers` customers, `r customers_at_risk` people were actually going to churn (`r round(customers_at_risk_perc*100,2)`% of the sample). Our model recommends offering retention programs to `r customers_targeted` people (`r round(customers_targeted_perc*100,2)`%). This number includes `r TP` customers who are indeed at risk of churn and `r FP` people who were not going to churn. Although the recommended number of unnecessary retention offerings seems relatively high at first glance, our model allows us to catch and, hopefully, prevent `r round(identified_churn_perc*100,2)`% of all churns. We argue that the expenses associated with running this many retention programs is justified by the prevention of profit losses due to customer churn. In the following sections, we will extrapolate these results to the entire population from the dataset to calculate the impact of the model.     
+
+## Assumptions
+### Financial Assumptions
+```{r}
+# Calculate the average monthly ARPU as the mean of all monthly charges in the dataset
+telco_monthly_arpu <- mean(telco$MonthlyCharges)
+
+# Make a research-informed assumption about TelCo's gross margin
+telco_gross_profit_margin <- 0.75
+
+# Calculate the average monthly gross profit per user
+telco_monthly_gppu <- telco_monthly_arpu * telco_gross_profit_margin
+
+# Make an assumption about the cost of a retention program per user
+retention_cost_per_user <- 50
+```
+<br>
+The average trailing twelve months' net profit margin for companies in the telecommunications sector, as of Q3 2022, is approximately 12.3%. Gross profit margins for the sector can run as high as 70% to 80%, but extremely high overhead expenses erode much of that initial profit balance ("Communications Services Industry Profitability by Quarter, Gross, Operating and Net Margin From 3 Q 2022"). Assuming a 75% gross profit margin, TelCo's monthly gross profit per user makes up $`r round(telco_monthly_gppu,2)`. 
+
+### Lifetime assumptions
+```{r}
+# Calculate the average tenure of churned customers
+churn_tenure = mean(filter(telco, Churn == 1)$tenure)
+
+# Use the average tenure of loyal customers as a proxy for the total customer lifetime
+non_churn_tenure = mean(filter(telco, Churn == 0)$tenure)
+
+# Calculate the lost lifespan of churned customers
+lost_lifespan = non_churn_tenure - churn_tenure
+```
+<br>
+The average TTM net profit margin for companies in the telecommunications sector, as of Q3 2022, is approximately 12.3%. Gross profit margins for the sector can run as high as 70% to 80%, but extremely high overhead expenses erode much of that initial profit balance ("Communications Services Industry Profitability by Quarter, Gross, Operating and Net Margin From 3 Q 2022"). Assuming a 75% gross profit margin, TelCo's monthly gross profit per user makes up $`r round(telco_monthly_gppu,2)`.
+<br>
+
+## Profitability Implications
+Next, we are going to consider TelCo's profitability in three scenarios: **(1) no retention**, **(2) random retention**, and **(3) model-informed retention**.
+
+### Scenario 1 - Base Scenario - No Retention
+**The first scenario implies not offering any retention programs and allowing organic churn.**
+```{r}
+# Calculate the lost profit per churned customer
+lost_profit_per_churn <- lost_lifespan * telco_monthly_gppu
+
+# Calculate the total lost profit with no retention strategies
+lost_profit_no_retention <- lost_profit_per_churn * nrow(filter(telco, Churn == 1))
+```
+<br>
+If we do not offer any retention programs, TelCo will lose $`r lost_profit_no_retention` in foregone profits due to churn.
+
+### Scenario 2 - Random Retention
+**The second scenario implies offering retention programs to a randomly selected sample of 30% of all customers.**
+```{r}
+# Calculate the expected percentage of identified churn
+randomly_identified_churn_perc <- nrow(filter(telco, Churn == 1))/nrow(telco)
+
+# Assume targeted sample size for random targeting
+random_sample_size <- 0.3
+
+# Find number of targeted users
+randomly_targeted_users <- round(random_sample_size * nrow(telco))
+
+# Calculate the number of identified customers at risk
+random_identified_churn <- round(nrow(telco) * random_sample_size * randomly_identified_churn_perc)
+
+# Create a sensitivity model to find profitability at various retention program success rates
+retained_customers_vector <- c()
+profits_vector <- c()
+success_rates <- seq(0, 1, 0.1)
+for (rate in success_rates) {
+  retained_customers <- round(random_identified_churn * rate)
+  retained_customers_vector <- append(retained_customers_vector, retained_customers)
+  regained_profit <- round(retained_customers * lost_profit_per_churn)
+  total_retention_costs <- retention_cost_per_user * randomly_targeted_users
+  remaining_churn_losses <- (nrow(filter(telco, Churn == 1)) - retained_customers) * lost_profit_per_churn
+  bottom_line <- regained_profit - total_retention_costs - remaining_churn_losses
+  profits_vector <- append(profits_vector, bottom_line)
+}
+
+# Create and plot a dataframe with sensitivity results
+random_sensitivity_df <- data.frame(success_rates, retained_customers_vector, profits_vector)
+random_sensitivity_df$relative_profit <- random_sensitivity_df$profits_vector + lost_profit_no_retention
+colnames(random_sensitivity_df) <- c("Success Rates", "Retained Customers", "Bottom Line", "P/L Relative to Base Scenario")
+random_sensitivity_df
+ggplot(random_sensitivity_df, aes(x = success_rates, y = profits_vector)) + geom_line()
+```
+<br>
+In an extreme optimistic subscenario (100% success rate), randomly offering retention programs to 30% of customers would help TelCo retain `r random_sensitivity_df[11, 2]` customers and thus gain $`r random_sensitivity_df[11, 3]+lost_profit_no_retention` in profits relative to the base scenario. 
+In an extreme pessimistic subscenario (0% success rate), randomly offering retention programs to 30% of customers would help TelCo retain `r random_sensitivity_df[1, 2]` customers while also leading to additional losses of $`r -random_sensitivity_df[1, 3]-lost_profit_no_retention` relative to the base scenario due retention expenses.
+
+### Scenario 3 - Model-Informed Retention
+**The third scenario implies offering retention programs to all customers who, according to our model, are likely to churn.**
+```{r}
+# Find number of targeted users
+model_targeted_customers <- round(customers_targeted_perc * nrow(telco))
+
+# Calculate the number of identified customers at risk
+model_identified_churn <- round(nrow(filter(telco, Churn == 1)) * identified_churn_perc)
+
+# Create a sensitivity model to find profitability at various retention program success rates
+retained_customers_vector <- c()
+profits_vector <- c()
+success_rates <- seq(0, 1, 0.1)
+for (rate in success_rates) {
+  retained_customers <- round(model_identified_churn * rate)
+  retained_customers_vector <- append(retained_customers_vector, retained_customers)
+  
+  regained_profit <- round(retained_customers * lost_profit_per_churn)
+  total_retention_costs <- retention_cost_per_user * model_targeted_customers
+  remaining_churn_losses <- (nrow(filter(telco, Churn == 1)) - retained_customers) * lost_profit_per_churn
+  bottom_line <- regained_profit - total_retention_costs - remaining_churn_losses
+  profits_vector <- append(profits_vector, bottom_line)
+}
+
+# Create and plot a dataframe with sensitivity results
+model_sensitivity_df <- data.frame(success_rates, retained_customers_vector, profits_vector)
+model_sensitivity_df$relative_profit <- model_sensitivity_df$profits_vector + lost_profit_no_retention
+colnames(model_sensitivity_df) <- c("Success Rates", "Retained Customers", "Bottom Line", "P/L Relative to Base Scenario")
+model_sensitivity_df
+ggplot(model_sensitivity_df, aes(x = success_rates, y = profits_vector)) + geom_line()
+```
+<br>
+In an extreme optimistic subscenario (100% success rate), following the model's recommendations would help TelCo retain `r model_sensitivity_df[11, 2]` customers and thus gain $`r model_sensitivity_df[11, 3]+lost_profit_no_retention` in profits relative to the base scenario. 
+In an extreme pessimistic subscenario (0% success rate), following the model's recommendations would help TelCo retain `r model_sensitivity_df[1, 2]` customers while also leading to additional losses of $`r -model_sensitivity_df[1, 3]-lost_profit_no_retention` relative to the base scenario due retention expenses.
+
+## Conclusion - NEED TO WRITE
+
+
+# References
+* “Communications Services Industry Profitability by Quarter, Gross, Operating and Net Margin From 3 Q 2022.” Communications Services Industry Profitability by Quarter, Gross, Operating and Net Margin From 3 Q 2022, csimarket.com/Industry/industry_Profitability_Ratios.php?ind=905. Accessed 5 Dec. 2022.
 
