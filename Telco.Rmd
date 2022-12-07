@@ -743,7 +743,7 @@ model_identified_churn <- round(nrow(filter(telco, Churn == 1)) * identified_chu
 
 # Create a sensitivity model to find profitability at various retention program success rates
 retained_customers_vector <- c()
-profits_vector <- c()
+profits_vector_mi <- c()
 success_rates <- seq(0, 1, 0.1)
 for (rate in success_rates) {
   retained_customers <- round(model_identified_churn * rate)
@@ -753,19 +753,52 @@ for (rate in success_rates) {
   total_retention_costs <- retention_cost_per_user * model_targeted_customers
   remaining_churn_losses <- (nrow(filter(telco, Churn == 1)) - retained_customers) * lost_profit_per_churn
   bottom_line <- regained_profit - total_retention_costs - remaining_churn_losses
-  profits_vector <- append(profits_vector, bottom_line)
+  profits_vector_mi <- append(profits_vector_mi, bottom_line)
 }
 
 # Create and plot a dataframe with sensitivity results
-model_sensitivity_df <- data.frame(success_rates, retained_customers_vector, profits_vector)
+model_sensitivity_df <- data.frame(success_rates, retained_customers_vector, profits_vector_mi)
 model_sensitivity_df$relative_profit <- model_sensitivity_df$profits_vector + lost_profit_no_retention
 colnames(model_sensitivity_df) <- c("Success Rates", "Retained Customers", "Bottom Line", "P/L Relative to Base Scenario")
 model_sensitivity_df
-ggplot(model_sensitivity_df, aes(x = success_rates, y = profits_vector)) + geom_line()
+ggplot(model_sensitivity_df, aes(x = success_rates, y = profits_vector_mi)) + geom_line()
 ```
 <br>
 In an extreme optimistic subscenario (100% success rate), following the model's recommendations would help TelCo retain `r model_sensitivity_df[11, 2]` customers and thus gain $`r model_sensitivity_df[11, 3]+lost_profit_no_retention` in profits relative to the base scenario. 
 In an extreme pessimistic subscenario (0% success rate), following the model's recommendations would help TelCo retain `r model_sensitivity_df[1, 2]` customers while also leading to additional losses of $`r -model_sensitivity_df[1, 3]-lost_profit_no_retention` relative to the base scenario due retention expenses.
+
+### Visual Purposes - Combining the Plots
+
+```{r}
+library(gganimate)
+
+animation <- data.frame(success_rates, profits_vector, profits_vector_mi) %>%
+  ggplot(aes(x = success_rates)) +
+  geom_line(aes(y = profits_vector, color = "Random Selection")) +
+  geom_line(aes(y = profits_vector_mi, color = "Model Selection")) +
+  geom_hline(yintercept = -1 * lost_profit_no_retention, linetype = 4, aes(color = "No Retention")) +
+  geom_hline(yintercept = 0, linetype = "F1", color = "black") + 
+  ggtitle("Profitability at Different Retention Program Success Rates") +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-2000000, 500000)) +
+  xlab("Success Rates") +
+  ylab("Profit") +
+  theme_light() +
+  scale_color_manual(values = c("Random Selection" = "#484444", "Model Selection" = "red", "No Retention" = "black"), name = "Scenarios") +
+  theme(plot.title = element_text(family = "Helvetica", face = "bold", size = 20),
+        axis.title = element_text(family = "Helvetica", size = 16),
+        axis.text = element_text(family = "Helvetica", size = 16),
+        axis.text.y = element_text(face = c('plain', 'plain', 'plain', 'plain', 'bold', 'plain'), size = 16),
+        legend.title = element_text(family = "Helvetica", face = "bold", size = 16),
+        legend.text = element_text(family = "Helvetica", size = 16)) +
+  transition_reveal(success_rates)
+
+
+animate(animation, height = 600, width = 800)
+
+anim_save("plot1.gif", animation = last_animation())
+```
+
 
 ## Conclusion - NEED TO WRITE
 
