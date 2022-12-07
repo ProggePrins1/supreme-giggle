@@ -717,7 +717,7 @@ for (rate in success_rates) {
   regained_profit <- round(retained_customers * lost_profit_per_churn)
   total_retention_costs <- retention_cost_per_user * randomly_targeted_users
   remaining_churn_losses <- (nrow(filter(telco, Churn == 1)) - retained_customers) * lost_profit_per_churn
-  bottom_line <- regained_profit - total_retention_costs - remaining_churn_losses
+  bottom_line <- regained_profit - total_retention_costs - lost_profit_no_retention
   profits_vector <- append(profits_vector, bottom_line)
 }
 
@@ -748,11 +748,9 @@ success_rates <- seq(0, 1, 0.1)
 for (rate in success_rates) {
   retained_customers <- round(model_identified_churn * rate)
   retained_customers_vector <- append(retained_customers_vector, retained_customers)
-  
   regained_profit <- round(retained_customers * lost_profit_per_churn)
   total_retention_costs <- retention_cost_per_user * model_targeted_customers
-  remaining_churn_losses <- (nrow(filter(telco, Churn == 1)) - retained_customers) * lost_profit_per_churn
-  bottom_line <- regained_profit - total_retention_costs - remaining_churn_losses
+  bottom_line <- regained_profit - total_retention_costs - lost_profit_no_retention
   profits_vector_mi <- append(profits_vector_mi, bottom_line)
 }
 
