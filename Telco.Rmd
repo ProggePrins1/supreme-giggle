@@ -181,14 +181,14 @@ Overall, we've seen a lot of interesting findings that indicates the dataset's a
 
 > We've seen that **gender** appears to be (somewhat) **indifferent** to the churn rate, whereas the **contract type, device protection, online security, and payment method** are variables to look out for. Additionally, we've realized that **interaction effects must be considered**, too, as a **month-to-month contract is almost always paired with no online security**. *Regardless, it is almost certain that we've missed numerous important effects, and that's why we'll run numerous types of ML algorithms and regression models.*
 
-## Business Questions - REWORD: REDUCE COSTS BY MINIMIZING CHURN
+## Business Questions
 > In this project, we are trying to answer **one overarching question**:
 
-> *Can we, at least with a 90% accuracy, predict whether a certain customer will churn based on their demographic characteristics and product preferences?* To this end, we plan to create machine learning algorithms that will determine whether a given customer will eventually stop buying our services or not. Applying our models to multiple test cases will help us derive an accuracy score.
+> Can we create a model that would be at least **twice as good as a random selection approach** at detecting customers at risk of churn while offering retention programs to less than 50% of customers? 
 
-<<<<<<< HEAD
+To this end, we plan to create machine learning algorithms that will determine whether a given customer will eventually stop buying our services or not. Applying our models to multiple test cases will help us derive an accuracy score. Please note that a random selection approach is one where Telco would *"randomly*"* select a set quantity of customers to apply its retention program to.
 
-> Overall, our goal is to develop targeted retention strategies for customers who are likely to churn.
+> *Overall, our goal is to develop targeted retention strategies for customers who are likely to churn.*
 
 ## Preliminary Cleaning Effort
 > In the upcoming section, the data is to be cleaned in order to prepare for data analysis, First, we start by deleting the "customerID" column as this column is irrelevant for our purpose (we're not trying to identify specific customers in our dataset). Following this, we factorize the columns with categorical data.
@@ -283,7 +283,8 @@ lm1_kappa <- as.numeric(lm1_cm$overall['Kappa'])
 lm1_sens <- as.numeric(lm1_cm$byClass['Sensitivity'])
 ```
 <br>
-> The initial logistic regression gave us an accuracy score of``r lm1_acc`, a Kappa value of `r lm1_kappa`, and a sesntivity value of `r lm1_sens`.
+> The initial logistic regression gave us an accuracy score of **`r lm1_acc`**, a Kappa value of **`r lm1_kappa`**, and a sesntivity value of **`r lm1_sens`**.
+
 > What immediately stands out in this model is the high number of **false negatives** where our model predicts that a customer would be retained (churn = 0), when it isn't the case in reality (i.e., they churned; churn = 1). Since this is an initial and relatively simple model, that is okay for now, as we will continue to work with this dataset to improve the prediction accuracy and bring down the false negatives simultaneously. This is the end of our code for the first intermediate submission.
 
 ### Improved LR
@@ -310,7 +311,7 @@ lm2_kappa <- as.numeric(lm2_cm$overall['Kappa'])
 lm2_sens <- as.numeric(lm2_cm$byClass['Sensitivity'])
 ```
 <br>
-> The improved logistic regression gave us an accuracy score of``r lm2_acc`, a Kappa value of `r lm2_kappa`, and a sesntivity value of `r lm2_sens`.
+> The improved logistic regression gave us an accuracy score of **`r lm2_acc`**, a Kappa value of **`r lm2_kappa`**, and a senstivity value of **`r lm2_sens`**.
 
 ## ANN
 ```{r, cache = TRUE}
@@ -339,7 +340,7 @@ ann1_kappa <- as.numeric(ann1_cm$overall['Kappa'])
 ann1_sens <- as.numeric(ann1_cm$byClass['Sensitivity'])
 ```
 <br>
-> First ANN gave us an accuracy score of``r ann1_acc`, a Kappa value of `r ann1_kappa`, and a sesntivity value of `r ann1_sens`.
+> The first ANN model yielded an accuracy score of **`r ann1_acc`**, a Kappa value of **`r ann1_kappa`**, and a sesntivity value of **`r ann1_sens`**.
 
 ## kNN
 ```{r, cache = TRUE}
@@ -369,14 +370,14 @@ knn1_kappa <- as.numeric(knn1_cm$overall['Kappa'])
 knn1_sens <- as.numeric(knn1_cm$byClass['Sensitivity'])
 ```
 <br>
-> The kNN model gave us an accuracy score of``r knn1_acc`, a Kappa value of `r knn1_kappa`, and a sesntivity value of `r knn1_sens`.
+> The kNN model gave us an accuracy score of **`r knn1_acc`**, a Kappa value of **`r knn1_kappa`**, and a sesntivity value of **`r knn1_sens`**.
 
 ## Decision Tree
 ### Simple DT
 ```{r, cache = TRUE}
 set.seed(300)
 
-## Create a simple tuned model with automated parameter tuning of C5.0 decision tree 
+# Create a simple tuned model with automated parameter tuning of C5.0 decision tree 
 dt1 <- train(Churn ~ ., data = telco_normal, method = "C5.0")
 
 # Apply the best candidate model to make predictions
@@ -394,9 +395,9 @@ dt1_kappa <- as.numeric(dt1_cm$overall['Kappa'])
 dt1_sens <- as.numeric(dt1_cm$byClass['Sensitivity'])
 ```
 <br>
-> Our in initial Decision Tree model gave us an accuracy score of``r dt1_acc`, a Kappa value of `r dt1_kappa`, and a sesntivity value of `r dt1_sens`. We will now try to tune the hyperparameters of the model.
+> Our in initial Decision Tree model gave us an accuracy score of **`r dt1_acc`**, a Kappa value of **`r dt1_kappa`**, and a sesntivity value of **`r dt1_sens`**. We will now try to tune the hyperparameters of the model.
 
-```{r, cache = TRUE}
+```{r, cache = TRUE, warning= FALSE}
 set.seed(300)
 
 # Use expand.grid() to create grid of tuning parameters
@@ -424,7 +425,7 @@ dt2_kappa <- as.numeric(dt2_cm$overall['Kappa'])
 dt2_sens <- as.numeric(dt2_cm$byClass['Sensitivity'])
 ```
 <br>
-> The improved model model  saw an accuracy of `r dt2_acc`, a Kappa value of `r dt2_kappa` and a sensitivity value of `r dt2_sens`.
+> The improved model model  saw an accuracy of **`r dt2_acc`**, a Kappa value of **`r dt2_kappa`** and a sensitivity value of **`r dt2_sens`**.
 
 ## Support Vector Machine (SVM) 
 ### SVM Linear
@@ -451,7 +452,7 @@ svm1_kappa <- as.numeric(svm1_cm$overall['Kappa'])
 svm1_sens <- as.numeric(svm1_cm$byClass['Sensitivity'])
 ```
 <br>
-> The SVM model with a linear kernel achieved an accuracy of `r svm1_acc`, a Kappa value of `r svm1_kappa` and a sensitivity value of `r svm1_sens`.
+> The SVM model with a linear kernel achieved an accuracy of **`r svm1_acc`**, a Kappa value of **`r svm1_kappa`** and a sensitivity value of **`r svm1_sens`**.
 
 ### SVM Radial
 ```{r, cache = TRUE}
@@ -477,7 +478,7 @@ svm2_kappa <- as.numeric(svm2_cm$overall['Kappa'])
 svm2_sens <- as.numeric(svm2_cm$byClass['Sensitivity'])
 ```
 <br>
-> The SVM model with a radial kernel achieved an accuracy of `r svm2_acc`, a Kappa value of `r svm2_kappa` and a sensitivity value of `r svm2_sens`.
+> The SVM model with a radial kernel achieved an accuracy of **`r svm2_acc`**, a Kappa value of **`r svm2_kappa`** and a sensitivity value of **`r svm2_sens`**.
 
 ### SVM Poly
 ```{r, cache = TRUE}
@@ -503,7 +504,7 @@ svm3_kappa <- as.numeric(svm3_cm$overall['Kappa'])
 svm3_sens <- as.numeric(svm3_cm$byClass['Sensitivity'])
 ```
 <br>
-> The SVM model with a poly kernel achieved an accuracy of `r svm3_acc`, a Kappa value of `r svm3_kappa` and a sensitivity value of `r svm3_sens`.
+> The SVM model with a poly kernel achieved an accuracy of **`r svm3_acc`**, a Kappa value of **`r svm3_kappa`** and a sensitivity value of **`r svm3_sens`**.
 
 ## First-Layer Results 
 
@@ -522,12 +523,14 @@ colnames(results) <- c("Accuracy", "Kappa", "Sensitivity")
 results
 ```
 <br>
-> With our first-layer results we decide which models we choose for the second-level model. We make our decision based on the Kappa score for the respective models. Using logistic regression the first model has bott the highest accuracy and Kappa, `r lm1_acc` and `r lm1_kappa`. Regarding our ANN and kNN models there are only one of each and both will be used in our second-level model. It is worth noting that these models have the highest sensitivity of all models with ANN having a value of `r ann1_sens` and kNN having a value of `r knn1_acc`. Our two decision tree models share a similiar accuracy, however the second model has both a higher Kappa, `r dt2_kappa`, and sensitivity, `r dt2_sens`, which is why we are continuing further with this model. For the support vector machine models, SVM, we have utilised three models while using different kernels for each model. The model using radial kernel achieved the highest kappa value of `r svm2_kappa`, and is therefore the one we are using in the second-level model
+> With our first-layer results we decide which models we choose for the second-level model. *We make our decision based on the Kappa score for the respective models*. 
+
+Using logistic regression, the first model has both the **highest accuracy and Kappa, `r lm1_acc` and `r lm1_kappa`**. Regarding our ANN and kNN models there are only one of each and *both will be used in our second-level model*. It is worth noting that these models have the **highest sensitivity of all models with ANN having a value of `r ann1_sens` and kNN having a value of `r knn1_acc`**. Our two decision tree models share a similar accuracy, however **the second model has both a higher Kappa, `r dt2_kappa`, and sensitivity, `r dt2_sens`**, which is why we are continuing further with this model. For the support vector machine models, SVM, we have utilized three models while using different kernels for each model. The model using **radial kernel achieved the highest kappa value of `r svm2_kappa`**, and is therefore the one we are using in the second-level model.
 
 # Second-Level Model
 
 ```{r}
-# Combine everything into one big dataframe for our stacked model.
+# Combine everything into one big data frame for our stacked model.
 combineddf <- data.frame(lr1pred, ann1pred, knn1pred, dt2_pred, svm2_pred, telco_labels)
 
 # Change colnames to something more intuitive
@@ -535,10 +538,11 @@ colnames(combineddf) <- c("LR", "ANN", "kNN", "DT", "SVM", "Actual")
 
 # Show summary statistics for the dataframe
 summary(combineddf)
+head(combineddf)
 ```
 
 ## Simple Stacked Model
-```{r, cache = TRUE}
+```{r, cache = TRUE, warning = FALSE}
 set.seed(300)
 
 # Use expand.grid() to create grid of tuning parameters
@@ -567,9 +571,9 @@ dt_comb_kappa <- as.numeric(dt_comb_cm$overall['Kappa'])
 dt_comb_sens <- as.numeric(dt_comb_cm$byClass['Sensitivity'])
 ```
 <br>
-> The combined model achieved an accuracy of `r dt_comb_acc`, a Kappa value of `r dt_comb_kappa`, and a sensitivity score of `r dt_comb_sens`. 
+> The combined model achieved an accuracy of **`r dt_comb_acc`**, a Kappa value of **`r dt_comb_kappa`**, and a sensitivity score of **`r dt_comb_sens`**. 
 
-## Results Comparison - NEED TO UPDATE AND ELABORATE
+## Results Comparison
 ```{r}
 # Combine all accuracy, kappa, and sensitivity values
 accuracy <- c(lm1_acc, ann1_acc, knn1_acc, dt2_acc, svm2_acc, dt_comb_acc)
@@ -585,7 +589,7 @@ colnames(results) <- c("Accuracy", "Kappa", "Sensitivity")
 results
 ```
 <br>
-> Thus, the combined model has achieved the highest accuracy score and Kappa value, but its sensitivity is lower than that of ANN and kNN. In this project, we are specifically interested in minimizing the number of false negatives - unnoticed instances of churn. We will try to reduce that number (and thus increase the combined model's sensitivity score) using an **error cost matrix**.
+> In the overview, the accuracy, kappa, and sensitivity for different models is provided. Overall, the **combined model** has achieved the **highest accuracy score and Kappa value, but its sensitivity is lower than that of ANN and kNN**, which is worrying given the false negatives. To elaborate, in this project, we are specifically interested in minimizing the number of false negatives - unnoticed instances of churn, where a retention program would have helped but was not used. Thus, we will attempt to reduce that number (and thus increase the combined model's sensitivity score) using an **error cost matrix** that penalizes any false negatives in a disproportionate manner.
 
 ## Error Cost Matrix
 ```{r}
@@ -615,7 +619,9 @@ dt2_comb_sens <- as.numeric(dt2_comb_cm$byClass['Sensitivity'])
 ```
 
 <br>
-> By applying a cost matrix, we can increase our senstivity score to `r dt2_comb_sens` but the accuracy rate falls to `r dt2_comb_acc`. That is primarily because we are increasing the number of false positives. The goal of our project is to identify individuals with a high risk of churn and target them with retention strategies. Next, we will look into the costs associated with losing customers as well as running such retention strategies. With that information, we will be able to estimate how much money the company will be able to save by targeting only customers who are at risk of churn according to the model.
+> By applying an error cost matrix, we can increase our senstivity score to **`r dt2_comb_sens`**, but the accuracy rate falls to **`r dt2_comb_acc`**, a decrease of **`r dt_comb_acc - dt2_comb_acc`**. That is primarily because the decrease in false negatives comes with a corresponding increase in the number of false positives. 
+
+As mentioned, the project's goal is to **identify individuals with a high risk of churn and target them with retention strategies**. Next, we will look into the costs associated with losing customers as well as running such retention strategies. With that information, we will be able to estimate how much money the company will be able to save by targeting only customers who are at risk of churn according to the model.
 
 # Business Implications
 ## Model Results
@@ -644,7 +650,9 @@ missed_churn <- FN
 identified_churn_perc <- TP / customers_at_risk
 ```
 <br>
-> In our sample of `r all_customers` customers, `r customers_at_risk` people were actually going to churn (`r round(customers_at_risk_perc*100,2)`% of the sample). Our model recommends offering retention programs to `r customers_targeted` people (`r round(customers_targeted_perc*100,2)`%). This number includes `r TP` customers who are indeed at risk of churn and `r FP` people who were not going to churn. Although the recommended number of unnecessary retention offerings seems relatively high at first glance, our model allows us to catch and, hopefully, prevent `r round(identified_churn_perc*100,2)`% of all churns. We argue that the expenses associated with running this many retention programs is justified by the prevention of profit losses due to customer churn. In the following sections, we will extrapolate these results to the entire population from the dataset to calculate the impact of the model.     
+> In our sample of **`r all_customers` customers**, **`r customers_at_risk`** people were actually going to churn (`r round(customers_at_risk_perc*100,2)`% of the sample). Our model recommends offering retention programs to **`r customers_targeted`** people (`r round(customers_targeted_perc*100,2)`%). This number includes **`r TP`** customers who are indeed at risk of churn and **`r FP`** people who were not going to churn. Although the recommended number of unnecessary retention offerings seems relatively high at first glance, our model allows us to catch and, hopefully, prevent **`r round(identified_churn_perc*100,2)`%** of all churns. 
+
+We argue that the expenses associated with running this many retention programs is justified by the prevention of profit losses due to customer churn, and will follow with this rationale. In the next sections, we will extrapolate these results to the entire population from the dataset to calculate the impact of the model.     
 
 ## Assumptions
 ### Financial Assumptions
@@ -652,7 +660,7 @@ identified_churn_perc <- TP / customers_at_risk
 # Calculate the average monthly ARPU as the mean of all monthly charges in the dataset
 telco_monthly_arpu <- mean(telco$MonthlyCharges)
 
-# Make a research-informed assumption about TelCo's gross margin
+# Make a research-informed assumption about Telco's gross margin
 telco_gross_profit_margin <- 0.75
 
 # Calculate the average monthly gross profit per user
@@ -662,9 +670,12 @@ telco_monthly_gppu <- telco_monthly_arpu * telco_gross_profit_margin
 retention_cost_per_user <- 50
 ```
 <br>
-The average TTM net profit margin for companies in the telecommunications sector, as of Q3 2022, is approximately 12.3%. Gross profit margins for the sector can run as high as 70% to 80%, but extremely high overhead expenses erode much of that initial profit balance ("Communications Services Industry Profitability by Quarter, Gross, Operating and Net Margin From Q3 2022"). Assuming a 75% gross profit margin, TelCo's monthly gross profit per user makes up $`r round(telco_monthly_gppu,2)`. 
+The average TTM net profit margin for companies in the telecommunications sector, as of **Q3 2022**, is approximately **12.3%**. Gross profit margins for the sector can run as high as **70% to 80%**, but extremely high overhead expenses erode much of that initial profit balance ("Communications Services Industry Profitability by Quarter, Gross, Operating and Net Margin From Q3 2022"). Assuming a 75% gross profit margin, Telco's monthly gross profit per user makes up **$`r round(telco_monthly_gppu,2)`**. 
 
 ### Lifetime assumptions
+
+In this subsection, we are going to assess the years of loyalty that Telco experiences due to churn (i.e., lost lifespan). This will later be used to compute the lost profit per churn.
+
 ```{r}
 # Calculate the average tenure of churned customers
 churn_tenure = mean(filter(telco, Churn == 1)$tenure)
@@ -675,10 +686,11 @@ non_churn_tenure = mean(filter(telco, Churn == 0)$tenure)
 # Calculate the lost lifespan of churned customers
 lost_lifespan = non_churn_tenure - churn_tenure
 ```
-<br>
+
+Assumptions in this subsection indicate that the average tenure for churned customers is **`r churn_tenure`**, whereas the loyal customers have an average tenure of **`r `non_churn_tenure`**. This, intuitively, results in a lost lifespan of **`r lost_lifespan`**.
 
 ## Profitability Implications
-Next, we are going to consider TelCo's profitability in three scenarios: **(1) no retention**, **(2) random retention**, and **(3) model-informed retention**.
+Next, we are going to consider Telco's profitability in three scenarios: **(1) no retention**, **(2) random retention**, and **(3) model-informed retention**.
 
 ### Scenario 1 - Base Scenario - No Retention
 **The first scenario implies not offering any retention programs and allowing organic churn.**
@@ -690,7 +702,7 @@ lost_profit_per_churn <- lost_lifespan * telco_monthly_gppu
 lost_profit_no_retention <- lost_profit_per_churn * nrow(filter(telco, Churn == 1))
 ```
 <br>
-If we do not offer any retention programs, TelCo will lose $`r lost_profit_no_retention` in foregone profits due to churn.
+If we do not offer any retention programs, Telco will lose **$`r lost_profit_no_retention`** in foregone profits due to churn.
 
 ### Scenario 2 - Random Retention
 **The second scenario implies offering retention programs to a randomly selected sample of 30% of all customers.**
@@ -726,11 +738,23 @@ random_sensitivity_df <- data.frame(success_rates, retained_customers_vector, pr
 random_sensitivity_df$relative_profit <- random_sensitivity_df$profits_vector + lost_profit_no_retention
 colnames(random_sensitivity_df) <- c("Success Rates", "Retained Customers", "Bottom Line", "P/L Relative to Base Scenario")
 random_sensitivity_df
-ggplot(random_sensitivity_df, aes(x = success_rates, y = profits_vector)) + geom_line()
+
+ggplot(random_sensitivity_df, aes(x = success_rates, y = profits_vector)) + 
+  geom_line(color = "#484444") +
+  ggtitle("Sensitivity Results - Random Selection") +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-2000000, -700000)) +
+  xlab("Success Rates") +
+  ylab("Profit") +
+  theme_light() +
+  theme(plot.title = element_text(family = "Arial", face = "bold", size = 14),
+        axis.title = element_text(family = "Arial", size = 12),
+        axis.text = element_text(family = "Arial", size = 12),
+        axis.text.y = element_text(size = 12))
 ```
 <br>
-In an extreme optimistic subscenario (100% success rate), randomly offering retention programs to 30% of customers would help TelCo retain `r random_sensitivity_df[11, 2]` customers and thus gain $`r random_sensitivity_df[11, 3]+lost_profit_no_retention` in profits relative to the base scenario. 
-In an extreme pessimistic subscenario (0% success rate), randomly offering retention programs to 30% of customers would help TelCo retain `r random_sensitivity_df[1, 2]` customers while also leading to additional losses of $`r -random_sensitivity_df[1, 3]-lost_profit_no_retention` relative to the base scenario due retention expenses.
+In an extreme optimistic sub scenario (100% success rate), randomly offering retention programs to 30% of customers would help Telco retain **`r random_sensitivity_df[11, 2]`** customers and thus gain **$`r random_sensitivity_df[11, 3]+lost_profit_no_retention`** in profits relative to the base scenario. 
+In an extreme pessimistic scenario (0% success rate), randomly offering retention programs to 30% of customers would help Telco retain **`r random_sensitivity_df[1, 2]`** customers while also leading to additional losses of **$`r -random_sensitivity_df[1, 3]-lost_profit_no_retention`** relative to the base scenario due to retention expenses.
 
 ### Scenario 3 - Model-Informed Retention
 **The third scenario implies offering retention programs to all customers who, according to our model, are likely to churn.**
@@ -759,11 +783,24 @@ model_sensitivity_df <- data.frame(success_rates, retained_customers_vector, pro
 model_sensitivity_df$relative_profit <- model_sensitivity_df$profits_vector + lost_profit_no_retention
 colnames(model_sensitivity_df) <- c("Success Rates", "Retained Customers", "Bottom Line", "P/L Relative to Base Scenario")
 model_sensitivity_df
-ggplot(model_sensitivity_df, aes(x = success_rates, y = profits_vector_mi)) + geom_line()
+
+ggplot(model_sensitivity_df, aes(x = success_rates, y = profits_vector_mi)) + 
+  geom_line() +
+  geom_line(color = "red") +
+  ggtitle("Sensitivity Results - Model-Informed Selection") +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-2000000, -700000)) +
+  xlab("Success Rates") +
+  ylab("Profit") +
+  theme_light() +
+  theme(plot.title = element_text(family = "Arial", face = "bold", size = 14),
+        axis.title = element_text(family = "Arial", size = 12),
+        axis.text = element_text(family = "Arial", size = 12),
+        axis.text.y = element_text(size = 12))
 ```
 <br>
-In an extreme optimistic subscenario (100% success rate), following the model's recommendations would help TelCo retain `r model_sensitivity_df[11, 2]` customers and thus gain $`r model_sensitivity_df[11, 3]+lost_profit_no_retention` in profits relative to the base scenario. 
-In an extreme pessimistic subscenario (0% success rate), following the model's recommendations would help TelCo retain `r model_sensitivity_df[1, 2]` customers while also leading to additional losses of $`r -model_sensitivity_df[1, 3]-lost_profit_no_retention` relative to the base scenario due retention expenses.
+In an extreme optimistic subscenario (100% success rate), following the model's recommendations would help Telco retain **`r model_sensitivity_df[11, 2]`** customers and thus gain **$`r model_sensitivity_df[11, 3]+lost_profit_no_retention`** in profits relative to the base scenario. 
+In an extreme pessimistic subscenario (0% success rate), following the model's recommendations would help Telco retain **`r model_sensitivity_df[1, 2]`** customers while also leading to additional losses of **$`r -model_sensitivity_df[1, 3]-lost_profit_no_retention`** relative to the base scenario due to retention expenses.
 
 ### Visual Purposes - Combining the Plots
 
@@ -774,21 +811,20 @@ animation <- data.frame(success_rates, profits_vector, profits_vector_mi) %>%
   ggplot(aes(x = success_rates)) +
   geom_line(aes(y = profits_vector, color = "Random Selection")) +
   geom_line(aes(y = profits_vector_mi, color = "Model Selection")) +
-  geom_hline(yintercept = -1 * lost_profit_no_retention, linetype = 4, aes(color = "No Retention")) +
-  geom_hline(yintercept = 0, linetype = "F1", color = "black") + 
+  geom_hline(yintercept = -1 * lost_profit_no_retention, linetype = "F1", color = "#63d1f9") +
   ggtitle("Profitability at Different Retention Program Success Rates") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(-2000000, 500000)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-2000000, -700000)) +
   xlab("Success Rates") +
   ylab("Profit") +
   theme_light() +
-  scale_color_manual(values = c("Random Selection" = "#484444", "Model Selection" = "red", "No Retention" = "black"), name = "Scenarios") +
-  theme(plot.title = element_text(family = "Helvetica", face = "bold", size = 20),
-        axis.title = element_text(family = "Helvetica", size = 16),
-        axis.text = element_text(family = "Helvetica", size = 16),
-        axis.text.y = element_text(face = c('plain', 'plain', 'plain', 'plain', 'bold', 'plain'), size = 16),
-        legend.title = element_text(family = "Helvetica", face = "bold", size = 16),
-        legend.text = element_text(family = "Helvetica", size = 16)) +
+  scale_color_manual(values = c("Random Selection" = "#484444", "Model Selection" = "red", "No Retention" = "#63d1f9"), name = "Scenarios") +
+  theme(plot.title = element_text(family = "Arial", face = "bold", size = 20),
+        axis.title = element_text(family = "Arial", size = 16),
+        axis.text = element_text(family = "Arial", size = 16),
+        axis.text.y = element_text(size = 16),
+        legend.title = element_text(family = "Arial", face = "bold", size = 16),
+        legend.text = element_text(family = "Arial", size = 16)) +
   transition_reveal(success_rates)
 
 
@@ -798,7 +834,9 @@ anim_save("plot1.gif", animation = last_animation())
 ```
 
 
-## Conclusion - NEED TO WRITE
+## Conclusion
+
+Overall, the team found that it was indeed possible to indeed obtain better financial results by using a model-informed selection program. Following the presumptions on retention costs and profit margins (see references), even using a random selection model would recoup Telco's losses given the high cost of churn. Although it is difficult to pinpoint a realistic success rate, the plot above has shown that, with reasonable success rates, having a structured, model-informed retention program in place could improve profits, with a maximum difference of **$`r model_sensitivity_df[11, 3]+lost_profit_no_retention`** in an optimistic scenario. Ideally, the team would like to follow up with Telco to discuss the firm's specific retention costs, acutal customer tenure, etc., whilst also discussing estimates of program success rates. 
 
 
 # References
